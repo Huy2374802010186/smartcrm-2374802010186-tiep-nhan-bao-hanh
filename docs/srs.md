@@ -117,7 +117,7 @@ Phân hệ **L02 – Tiếp nhận và phân loại yêu cầu bảo hành** thu
 | **FR-08** | Phê duyệt phiếu thiếu thông tin ngày mua | US8 | UC-07 | COULD |
 
 ### 4.2. Sơ đồ Use Case Diagram
-*Sơ đồ Use Case được thiết kế chuẩn gồm ranh giới hệ thống, chú thích (legend) và được lưu trữ dưới dạng file gốc tại `docs/usecase.drawio` trong repository.*
+*Sơ đồ Use Case được thiết kế chuẩn gồm ranh giới hệ thống, chú thích (legend) và được lưu trữ dưới dạng file gốc tại `docs\diagrams\UseCase_SmartCRM_L02.drawio` trong repository.*
 
 ### 4.3. Bản đặc tả chi tiết Use Case cốt lõi (`UC-05`)
 
@@ -247,3 +247,26 @@ Phân hệ **L02 – Tiếp nhận và phân loại yêu cầu bảo hành** thu
 | `purchase_date` | Không | String (ISO Date) | Định dạng `YYYY-MM-DD`; Không lớn hơn ngày hiện tại | `400 Bad Request` |
 | `category_id` | Có | Integer | Phải tồn tại trong bảng `issue_category` | `404 Not Found` |
 | `priority` | Có | String | Chỉ nhận 1 trong 3 giá trị: `"CAO"`, `"TRUNG_BINH"`, `"THAP"` | `400 Bad Request` |
+
+---
+
+## 7. Thiết kế Kiến trúc Hệ thống (Architecture Design)
+
+### 7.1. Sơ đồ Kiến trúc Phân lớp (4-Tier Layered Architecture)
+*Sơ đồ kiến trúc được thiết kế và lưu trữ dưới dạng file gốc tại `docs/architecture.drawio` trong repository.*
+
+* **Lớp Presentation (Giao diện):** Xây dựng bằng React (Vite), chịu trách nhiệm hiển thị 3 màn hình nghiệp vụ M1 (Tiếp nhận/Tạo phiếu), M2 (Danh sách & Lọc SLA), M3 (Chi tiết phiếu & Nhật ký lịch sử).
+* **Lớp Business/Service (Xử lý nghiệp vụ):** Xây dựng bằng Python FastAPI, chứa toàn bộ business logic: chuẩn hóa SĐT (QT-01, QT-02), đối soát bảo hành (QT-05), thuật toán tính SLA tự động bỏ qua Chủ Nhật (QT-04), sinh mã phiếu và ghi log chuyển trạng thái (QT-06).
+* **Lớp Data Access/Repository (Truy xuất dữ liệu):** Sử dụng SQLAlchemy ORM để tách biệt logic truy vấn CSDL khỏi Service Layer.
+* **Lớp Database (Lưu trữ):** Cơ sở dữ liệu quan hệ PostgreSQL lưu trữ 5 thực thể chính.
+
+### 7.2. Ba câu Lập luận Quyết định Kiến trúc (Architectural Trade-offs)
+
+1. **Lập luận 1 (Hiệu năng - NFR-01):**
+> "Vì **NFR-01** yêu cầu thời gian phản hồi API tra cứu khách hàng và tạo phiếu `< 300ms` với 50 kết nối đồng thời, tôi chọn **đánh B-Tree Index trên cột `phone` (bảng `customer`) và các cột `status`, `due_date` (bảng `ticket`)**, đánh đổi là **tốn thêm dung lượng bộ nhớ lưu trữ index và làm tăng nhẹ thời gian ghi (Write latency) khi khởi tạo phiếu mới."
+
+2. **Lập luận 2 (Chính xác nghiệp vụ - NFR-02):**
+> "Vì **NFR-02** yêu cầu thuật toán chuẩn hóa số điện thoại tự động đạt độ chính xác **100%** cho các đầu số Việt Nam (`+84`, `84`, `0x`), tôi chọn **thực hiện chuẩn hóa Regex Pipeline tại Service Layer** trước khi truy vấn CSDL, đánh đổi là **tăng thêm một lượng nhỏ chi phí tính toán CPU trên Backend Server cho mỗi request tìm kiếm."
+
+3. **Lập luận 3 (Bảo mật - NFR-04):**
+> "Vì **NFR-04** yêu cầu **che (masking) số điện thoại dạng `090****567`** đối với vai trò Nhân viên tiếp nhận theo quy tắc QT-15, tôi chọn **thực hiện Masking ngay tại Data Response Transformer của Backend** trước khi trả dữ liệu về Client, đánh đổi là **Backend không thể dùng cơ chế Caching tĩnh cho API thông tin khách hàng mà phải render động theo Scope người dùng."
