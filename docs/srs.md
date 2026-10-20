@@ -1,242 +1,249 @@
-# BÀI TẬP 1 — BẢN ĐẶC TẢ YÊU CẦU & THIẾT KẾ HỆ THỐNG (SRS RÚT GỌN)
-**Học phần:** Chuyên đề Tốt nghiệp 1 (71ITGR40203)  
+# TÀI LIỆU ĐẶC TẢ YÊU CẦU HỆ THỐNG (SRS RÚT GỌN)
 **Dự án:** Smart CRM – Mekong Mobile  
 **Phân hệ:** Luồng L02 – Tiếp nhận và phân loại yêu cầu bảo hành  
 **Sinh viên thực hiện:** Nguyễn Trương Đức Huy – MSSV: 2374802010186  
-**Chuyên ngành (Track):** Software Engineering (SE)  
-**Lớp / Nhóm:** 261_71ITGR40203_05  
+**Chuyên ngành (Track):** Software Engineering (SE) – Luồng L02  
 
 ---
 
-## MỤC 1 — BẢN SRS RÚT GỌN
+## 1. Tổng quan & Bảng thuật ngữ (Overview & Glossary)
 
-### 1.1. Giới thiệu và phạm vi
-* **Bối cảnh:** Mekong Mobile vận hành 24 cửa hàng bán lẻ và 6 trung tâm bảo hành. Hiện chưa có hệ thống CRM tập trung; quy trình tiếp nhận hoàn toàn thủ công bằng phiếu giấy. Thực trạng này gây ra trùng lặp 18–22% hồ sơ khách hàng (V1), tra cứu ngày mua mất 5–10 phút/khách và khoảng 30% không tra cứu được, 15% phiếu bị xử lý quá hạn SLA không cảnh báo (V2) và ghi lỗi tự do không thống kê được nguyên nhân hỏng hóc phổ biến (V8).
-* **Phạm vi bài toán bằng một câu (Scope):** "Quản lý tiếp nhận và phân loại yêu cầu bảo hành: Nhân viên tiếp nhận tra cứu/lập hồ sơ khách hàng và thiết bị, ghi nhận thông tin sự cố; hệ thống hỗ trợ kiểm tra điều kiện bảo hành, tự động phân loại nhóm sự cố, tính hạn cam kết SLA và khởi tạo phiếu bảo hành (ticket), theo dõi chuyển dịch trạng thái tiếp nhận cho đến khi hoàn tất hoặc đóng phiếu."
-* **Chủ ý KHÔNG làm (WON'T / Out of Scope):**
-  * Chọn và phân công kỹ thuật viên cụ thể (thuộc luồng L04).
-  * Phê duyệt ngoại lệ bảo hành miễn phí của Quản lý trung tâm đối với các trường hợp thiếu ngày mua (QT-05).
-  * Tự động gửi SMS/Zalo thông báo tiến độ cho khách.
-  * Quản lý kho và xuất nhập linh kiện thay thế (thuộc luồng L05).
-  * Khảo sát đo lường CSAT/NPS (L08) và Báo cáo doanh thu tổng hợp (L06).
-* **Hướng mở rộng (COULD):** Báo cáo thống kê tần suất các nhóm sự cố theo từng dòng sản phẩm/model thiết bị.
+### 1.1. Tổng quan doanh nghiệp & Hệ thống
+Công ty Cổ phần Bán lẻ & Dịch vụ Mekong Mobile thành lập năm 2015, kinh doanh bán lẻ điện thoại, máy tính bảng, phụ kiện và dịch vụ bảo hành - sửa chữa. Quy mô hiện tại gồm 24 cửa hàng bán lẻ và 6 trung tâm bảo hành, với khoảng 180 nhân viên (38 kỹ thuật viên bảo hành và 12 nhân viên tiếp nhận), phục vụ khoảng 65.000 khách hàng và xử lý trung bình 260 yêu cầu bảo hành/tháng.
 
-#### Bảng thuật ngữ nghiệp vụ (Glossary):
+Phân hệ **L02 – Tiếp nhận và phân loại yêu cầu bảo hành** thuộc hệ thống Smart CRM được xây dựng nhằm số hóa quy trình tiếp nhận, tra cứu thông tin khách hàng, ghi nhận thông tin thiết bị, tự động kiểm tra điều kiện bảo hành, phân loại nhóm sự cố, tính hạn cam kết SLA và khởi tạo phiếu bảo hành (`ticket`).
+
+### 1.2. Bảng thuật ngữ nghiệp vụ (Glossary)
+
 | Thuật ngữ | Định nghĩa nghiệp vụ | Tên kỹ thuật |
 | :--- | :--- | :--- |
-| **Khách hàng** | Người đã mua sản phẩm hoặc sử dụng dịch vụ tại Mekong Mobile |  |
-| **Thiết bị** | Máy cụ thể của khách hàng, định danh duy nhất bằng số Serial/IMEI |  |
-| **Phiếu bảo hành** | Một yêu cầu bảo hành/sửa chữa được ghi nhận, có mã duy nhất và vòng đời trạng thái |  |
-| **Trạng thái phiếu** | Vị trí hiện tại trong vòng đời (MỚI, ĐÃ PHÂN CÔNG, ĐANG XỬ LÝ, CHỜ LINH KIỆN, HOÀN TẤT, ĐÃ ĐÓNG, ĐÃ HỦY) |  |
-| **Lịch sử trạng thái** | Nhật ký lưu mỗi lần chuyển trạng thái kèm thời gian và người thực hiện |  |
-| **Hạn cam kết (SLA)** | Thời điểm chậm nhất phải hoàn tất phiếu, tính từ lúc tiếp nhận theo mức ưu tiên |  |
-| **Nhóm sự cố** | Phân loại nguyên nhân: Màn hình, Pin, Sạc, Phần mềm, Nước vào, Khác |  |
-| **Mức ưu tiên** | Mức khẩn cấp của phiếu (CAO, TRUNG_BINH, THAP) quyết định hạn cam kết SLA |  |
-| **Tình trạng bảo hành** | Còn bảo hành / Hết bảo hành / Chưa xác minh, xác định tại thời điểm tiếp nhận |  |
-| **Trung tâm** | Trung tâm bảo hành tiếp nhận phiếu (định danh bằng mã do hệ thống ngoài cấp) |  |
-
-### 1.2. Các bên liên quan và vai trò
-| Tác nhân (Actor) | Quyền hạn / Được làm | Không được làm |
-| :--- | :--- | :--- |
-| **Nhân viên tiếp nhận** | Tra cứu khách hàng, tạo khách hàng mới, tạo phiếu bảo hành mới, xem danh sách phiếu của trung tâm mình | Xem phiếu của trung tâm khác; xem số điện thoại đầy đủ của khách hàng (QT-15) |
-| **Quản lý trung tâm** | Xem danh sách phiếu bảo hành của trung tâm mình, xem đầy đủ số điện thoại khách hàng, đôn đốc tiến độ SLA | Tạo trực tiếp hoặc sửa đổi nội dung phiếu bảo hành của nhân viên |
-
-### 1.3. Yêu cầu chức năng và User Story
-| Mã FR | Yêu cầu chức năng (phát biểu kiểm chứng được) | User Story | MoSCoW |
-| :--- | :--- | :--- | :--- |
-| **FR1** | Tra cứu khách hàng theo số điện thoại; tự động quy đổi SĐT về dạng 10 số bắt đầu bằng 0 và hiển thị hồ sơ khách hàng cùng danh sách thiết bị | **US1** | **MUST** |
-| **FR2** | Tạo hồ sơ khách hàng mới khi số điện thoại chưa tồn tại; từ chối và báo lỗi nếu số điện thoại đã tồn tại trên hệ thống (QT-01, QT-02) | **US2** | **MUST** |
-| **FR3** | Ghi nhận thông tin thiết bị (IMEI/Serial, ngày mua) và liên kết thiết bị với hồ sơ khách hàng hiện tại (QT-03) | **US3** | **MUST** |
-| **FR4** | Cho phép chọn nhóm sự cố chuẩn hóa và nhập mô tả lỗi chi tiết (tối thiểu 10 ký tự) | **US4** | **SHOULD** |
-| **FR5** | Tự động đối soát điều kiện bảo hành (QT-05) và tự động tính hạn cam kết SLA due_date theo quy tắc giờ làm việc T2–T7 (QT-04) | **US5** | **MUST** |
-| **FR6** | Hiển thị danh sách phiếu bảo hành đã tiếp nhận của trung tâm, hỗ trợ lọc theo trạng thái và sắp xếp theo hạn SLA tăng dần | **US6** | **SHOULD** |
-| **FR7** | Khởi tạo phiếu ở trạng thái MỚI, cho phép cập nhật trạng thái đúng vòng đời (QT-06) và tự động ghi log vào ticket_status_log | **US7** | **MUST** |
-
-#### Bảng chi tiết 7 User Story (INVEST & MoSCoW):
-| Mã US | MoSCoW | User Story (Là <vai trò>, tôi muốn <mục tiêu> để <giá trị>) |
-| :--- | :--- | :--- |
-| **US1** | **MUST** | Là Nhân viên tiếp nhận, tôi muốn tra cứu và tự động chuẩn hóa số điện thoại khách hàng để nhanh chóng tìm thấy hồ sơ có sẵn, tránh tạo hồ sơ trùng lặp (giải quyết V1). |
-| **US2** | **MUST** | Là Nhân viên tiếp nhận, tôi muốn khởi tạo hồ sơ khách hàng mới khi số điện thoại chưa tồn tại để ghi nhận đầy đủ thông tin khách hàng mới đến cửa hàng lần đầu. |
-| **US3** | **MUST** | Là Nhân viên tiếp nhận, tôi muốn ghi nhận số IMEI/Serial và ngày mua của thiết bị để quản lý chính xác thông tin thiết bị cần bảo hành (QT-03). |
-| **US4** | **SHOULD** | Là Nhân viên tiếp nhận, tôi muốn chọn nhóm sự cố chuẩn hóa và nhập mô tả lỗi chi tiết để thống kê chính xác nguyên nhân hỏng hóc phổ biến (giải quyết V8). |
-| **US5** | **MUST** | Là Nhân viên tiếp nhận, tôi muốn hệ thống tự động đối soát bảo hành và tính hạn cam kết due_date theo SLA để hẹn chính xác ngày trả máy cho khách (giải quyết V2). |
-| **US6** | **SHOULD** | Là Quản lý trung tâm, tôi muốn xem và lọc danh sách phiếu tiếp nhận theo trạng thái và SLA để đôn đốc tiến độ xử lý và ưu tiên các phiếu sắp quá hạn. |
-| **US7** | **MUST** | Là Nhân viên tiếp nhận, tôi muốn khởi tạo phiếu mới và cập nhật trạng thái đúng vòng đời để bắt đầu xử lý phiếu minh bạch và lưu vết lịch sử (QT-06). |
-
-#### Tiêu chí Chấp nhận Given–When–Then (GWT) cho các Story MUST:
-* **US1 (MUST) — Tra cứu & Chuẩn hóa Khách hàng theo SĐT:**
-  * *Kịch bản 1 (Chuẩn hóa SĐT đầu vào):* **Given** Nhân viên tiếp nhận nhập chuỗi SĐT '84908123456' hoặc '090 812 3456' vào ô tìm kiếm; **When** nhấn 'Tìm kiếm'; **Then** hệ thống tự động quy đổi về dạng 10 số chuẩn '0908123456' (QT-02) và hiển thị thông tin hồ sơ khách hàng.
-  * *Kịch bản 2 (Ngoại lệ - Khách hàng mới):* **Given** SĐT '0909888777' chưa tồn tại trên hệ thống; **When** nhấn 'Tìm kiếm'; **Then** hệ thống hiển thị thông báo 'Không tìm thấy khách hàng' và tự động mở form cho phép tạo khách hàng mới.
-* **US2 (MUST) — Khởi tạo Hồ sơ Khách hàng mới:**
-  * *Kịch bản 1 (Tạo thành công):* **Given** Form tạo khách hàng mới được mở; **When** Nhân viên nhập 'Nguyễn Văn B' và SĐT '0909888777' rồi nhấn 'Lưu'; **Then** hệ thống khởi tạo bản ghi mới trong bảng customer và gán customer_id.
-  * *Kịch bản 2 (Ngoại lệ - SĐT đã tồn tại):* **Given** SĐT '0908123456' đã thuộc về khách hàng 'Nguyễn Văn A'; **When** Nhân viên cố tình tạo mới với SĐT này; **Then** hệ thống từ chối lưu, trả mã lỗi HTTP 409 Conflict và cảnh báo vi phạm QT-01.
-* **US3 (MUST) — Ghi nhận Thông tin Thiết bị:**
-  * *Kịch bản 1 (Ghi nhận hợp lệ):* **Given** Khách hàng đã được chọn; **When** Nhân viên nhập IMEI '358990011223344' và ngày mua '15/01/2026'; **Then** hệ thống lưu thiết bị vào bảng device và gán liên kết với customer_id.
-  * *Kịch bản 2 (Ngoại lệ - Trùng IMEI ở khách khác):* **Given** IMEI '358990011223344' đã được gán cho một khách hàng khác; **When** Nhân viên lưu thiết bị; **Then** hệ thống ngăn chặn lưu bản ghi và cảnh báo vi phạm quy tắc QT-03.
-* **US5 (MUST) — Tính Hạn SLA & Đối soát Bảo hành:**
-  * *Kịch bản 1 (Mức ưu tiên CAO):* **Given** Phiếu được chọn mức 'CAO' (SLA 24h làm việc) tiếp nhận lúc 09:00 Thứ Sáu (02/10/2026); **When** hệ thống tính toán due_date; **Then** due_date được gán tự động là 09:00 Thứ Bảy (03/10/2026).
-  * *Kịch bản 2 (Ngoại lệ - Trực qua Chủ Nhật):* **Given** Phiếu được chọn mức 'TRUNG_BINH' (SLA 72h làm việc) tiếp nhận lúc 09:00 Thứ Sáu; **When** hệ thống tính due_date theo lịch T2–T7; **Then** hệ thống tự động bỏ qua ngày Chủ Nhật và gán due_date là 09:00 Thứ Ba tuần kế tiếp (QT-04).
-* **US7 (MUST) — Khởi tạo Phiếu & Lưu vết Trạng thái:**
-  * *Kịch bản 1 (Khởi tạo thành công):* **Given** Đủ thông tin khách hàng, thiết bị và mô tả lỗi; **When** Nhân viên nhấn 'Tạo phiếu bảo hành'; **Then** hệ thống sinh mã 'BH-000123/2026', gán status = 'MOI' và ghi tự động 1 dòng lịch sử vào ticket_status_log (QT-06).
-  * *Kịch bản 2 (Ngoại lệ - Chuyển trạng thái sai vòng đời):* **Given** Phiếu đang ở trạng thái 'ĐÃ PHÂN CÔNG'; **When** ai đó cố tình cập nhật ngược về 'MỚI'; **Then** hệ thống từ chối cập nhật và báo lỗi vi phạm quy tắc QT-06.
-
-### 1.4. Yêu cầu phi chức năng (NFR)
-| Mã NFR | Loại tiêu chí | Ngưỡng con số đo lường cụ thể |
-| :--- | :--- | :--- |
-| **NFR1** | **Hiệu năng (Performance)** | Thời gian phản hồi của API tra cứu khách hàng và khởi tạo phiếu < 300ms cho 95% số request khi hệ thống đạt tải 50 kết nối đồng thời. Màn hình danh sách hiển thị < 2 giây với 1.000 bản ghi phân trang 20 dòng. |
-| **NFR2** | **Bảo mật (Security/Privacy)** | Số điện thoại khách hàng hiển thị dạng che (masking 090****567) đối với vai trò Nhân viên tiếp nhận theo QT-15; 0 endpoint API trả về SĐT đầy đủ cho người dùng không có quyền Quản lý. |
-| **NFR3** | **Khả dụng (Usability)** | Nhân viên tiếp nhận mới có thể thực hiện thành công việc tra cứu và khởi tạo một phiếu bảo hành mới trong thời gian < 2.5 phút ngay trong lần đầu thao tác mà không cần trợ giúp. |
-| **NFR4** | **Bảo trì (Maintainability)** | Việc thay đổi cấu hình thời hạn SLA (QT-04) chỉ phải thực hiện chỉnh sửa duy nhất trong 1 module của lớp Business/Service; 0 file nguồn bị ảnh hưởng ở lớp Presentation và Data Access. |
-
-### 1.5. Ràng buộc và quy tắc nghiệp vụ
-| Mã Quy tắc | Nội dung Quy tắc Nghiệp vụ |
-| :--- | :--- |
-| **QT-01** | Số điện thoại khách hàng là duy nhất; khi nhập số đã tồn tại, hệ thống hiển thị hồ sơ có sẵn thay vì tạo mới. |
-| **QT-02** | Số điện thoại được chuẩn hóa về dạng 10 chữ số bắt đầu bằng 0 trước khi lưu (+84, 84, dấu cách đều quy về chuẩn). |
-| **QT-03** | Thiết bị xác định duy nhất bằng số Serial/IMEI; một thiết bị chỉ thuộc về một khách hàng tại một thời điểm. |
-| **QT-04** | Hạn cam kết SLA tự sinh từ lúc tiếp nhận: CAO = 24h, TRUNG_BINH = 72h, THAP = 120h; chỉ tính ngày làm việc T2–T7. |
-| **QT-05** | Thiết bị còn bảo hành nếu (ngày tiếp nhận − ngày mua) ≤ số tháng bảo hành; không có ngày mua thì đánh dấu 'Chưa xác minh'. |
-| **QT-06** | Phiếu chỉ chuyển trạng thái theo đúng vòng đời; không được quay lại trạng thái trước; mọi chuyển trạng thái ghi log vào ticket_status_log. |
-| **QT-13** | Không xóa vật lý phiếu bảo hành và hồ sơ khách hàng (chỉ soft delete nếu cần). |
-| **QT-15** | Số điện thoại hiển thị dạng che (090****567) với mọi vai trò trừ Quản lý trung tâm. |
-
-### 1.6. Bảng truy vết yêu cầu (Traceability Matrix)
-| FR | User Story | Use Case | MoSCoW | Bảng dữ liệu | Màn hình |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **FR1** | **US1** | **UC1** | **MUST** | customer, device | M1 |
-| **FR2** | **US2** | **UC2** | **MUST** | customer | M1 |
-| **FR3** | **US3** | **UC3** | **MUST** | device, customer | M1 |
-| **FR4** | **US4** | **UC4** | **SHOULD** | ticket, issue_category | M1, M3 |
-| **FR5** | **US5** | **UC3** | **MUST** | ticket | M1, M2 |
-| **FR6** | **US6** | **UC5** | **SHOULD** | ticket, customer, device | M2 |
-| **FR7** | **US7** | **UC6** | **MUST** | ticket, ticket_status_log | M1, M3 |
+| **Khách hàng** | Cá nhân đã mua sản phẩm hoặc sử dụng dịch vụ tại Mekong Mobile. | `customer` |
+| **Thiết bị** | Máy cụ thể của khách hàng, định danh duy nhất bằng số Serial/IMEI. | `device` |
+| **Phiếu bảo hành** | Yêu cầu bảo hành/sửa chữa được ghi nhận, có mã duy nhất (`BH-XXXXXX/2026`) và vòng đời trạng thái. | `ticket` |
+| **Trạng thái phiếu** | Vị trí hiện tại của phiếu trong vòng đời (`MỚI`, `ĐÃ PHÂN CÔNG`, `ĐANG XỬ LÝ`, `CHỜ LINH KIỆN`, `HOÀN TẤT`, `ĐÃ ĐÓNG`, `ĐÃ HỦY`). | `ticket_status` |
+| **Hạn cam kết (SLA)** | Thời điểm chậm nhất phải hoàn tất phiếu theo mức ưu tiên (Cao: 24h, Trung bình: 72h, Thấp: 120h làm việc T2–T7). | `due_date` |
+| **Nhóm sự cố** | Phân loại nguyên nhân sự cố: Màn hình, Pin, Sạc, Phần mềm, Nước vào, Khác. | `issue_category` |
+| **Mức ưu tiên** | Mức độ khẩn cấp (`CAO`, `TRUNG_BINH`, `THAP`) quyết định hạn cam kết SLA. | `priority` |
+| **Lịch sử trạng thái** | Nhật ký lưu mỗi lần chuyển trạng thái kèm thời gian và người thực hiện. | `ticket_status_log` |
 
 ---
 
-## MỤC 2 — USE CASE
+## 2. Phạm vi bài toán bằng một câu (Scope)
 
-### 2.1. Sơ đồ Use Case (Use Case Diagram)
-Sơ đồ Use Case được thiết kế tuân thủ đầy đủ chuẩn ký pháp: ranh giới hệ thống rõ ràng, 2 tác nhân ngoài ranh giới (Nhân viên tiếp nhận, Quản lý trung tâm), có khung chú thích Ký hiệu (Legend) và ranh giới hệ thống 'Phân hệ L02 - Smart CRM'. Tên Use Case tuân thủ quy tắc ĐỘNG TỪ + ĐỐI TƯỢNG (VD: Tra cứu khách hàng, Khởi tạo phiếu bảo hành mới). File gốc: .
+> **"Quản lý tiếp nhận và phân loại yêu cầu bảo hành:** Nhân viên tiếp nhận tra cứu/lập hồ sơ khách hàng và thiết bị, ghi nhận thông tin sự cố; hệ thống hỗ trợ kiểm tra điều kiện bảo hành, tự động phân loại nhóm sự cố, tính hạn cam kết SLA và khởi tạo phiếu bảo hành (ticket), theo dõi chuyển dịch trạng thái tiếp nhận cho đến khi hoàn tất hoặc đóng phiếu."
 
-### 2.2. Đặc tả chi tiết Use Case cốt lõi: UC3 — Khởi tạo phiếu bảo hành mới
-* **Tác nhân chính:** Nhân viên tiếp nhận
-* **Mục tiêu:** Ghi nhận thông tin khách hàng, thiết bị và lỗi để hệ thống tự động kiểm tra bảo hành, tính SLA và khởi tạo phiếu mới
-* **Điều kiện trước:** Nhân viên tiếp nhận đã đăng nhập vào hệ thống CRM và đã xác định được mã trung tâm tiếp nhận ()
-* **Điều kiện sau:** Một bản ghi phiếu bảo hành trạng thái 'MỚI' được lưu vào bảng , mã phiếu duy nhất sinh ra, và 1 dòng log lưu vào 
-* **User Story liên quan:** US3, US4, US5, US7 (Mức ưu tiên MoSCoW: MUST)
+---
+
+## 3. Danh mục User Story & Tiêu chí Chấp nhận (User Stories & Acceptance Criteria)
+
+### 3.1. Bảng tổng hợp 8 User Story
+
+| Mã US | Vai trò (Actor) | Mục tiêu (Want) | Giá trị (So that) | Quy tắc / Vấn đề | MoSCoW |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **US1** | Nhân viên tiếp nhận | Tra cứu và hệ thống tự động chuẩn hóa số điện thoại khách hàng | Nhanh chóng tìm thấy hồ sơ có sẵn, tránh tạo hồ sơ trùng lặp | V1, QT-01, QT-02 | **MUST** |
+| **US2** | Nhân viên tiếp nhận | Ghi nhận số IMEI/Serial và ngày mua của thiết bị | Quản lý chính xác thông tin máy cần bảo hành | QT-03 | **MUST** |
+| **US3** | Nhân viên tiếp nhận | Hệ thống tự động đối soát ngày mua với thời hạn bảo hành | Xác định thiết bị còn/hết hạn hoặc đánh dấu cần duyệt | QT-05 | **MUST** |
+| **US4** | Nhân viên tiếp nhận | Chọn nhóm sự cố chuẩn hóa (`issue_category`) và nhập mô tả lỗi | Thống kê chính xác nguyên nhân bảo hành phổ biến | V8 | **SHOULD** |
+| **US5** | Nhân viên tiếp nhận | Tự động gợi ý mức ưu tiên và tính hạn cam kết `due_date` | Hẹn chính xác ngày trả máy và cảnh báo quá hạn | V2, QT-04 | **MUST** |
+| **US6** | Nhân viên tiếp nhận | Khởi tạo phiếu bảo hành mới ở trạng thái `MỚI` và lưu vết | Bắt đầu vòng đời xử lý phiếu minh bạch | QT-06 | **MUST** |
+| **US7** | Quản lý / Nhân viên | Xem và lọc danh sách phiếu tiếp nhận theo trạng thái và SLA | Đôn đốc tiến độ và ưu tiên phiếu sắp quá hạn | V2 | **SHOULD** |
+| **US8** | Quản lý trung tâm | Nhận thông báo và phê duyệt phiếu thiếu ngày mua | Quyết định thiết bị có được hưởng chế độ bảo hành miễn phí hay không | QT-05 | **COULD** |
+
+---
+
+### 3.2. Tiêu chí Chấp nhận Given–When–Then (GWT) cho các Story MUST
+
+#### **US1 (MUST): Tra cứu & Chuẩn hóa Khách hàng theo Số điện thoại**
+* **Kịch bản 1 (Luồng chính - Chuẩn hóa số điện thoại):**
+  * **Given** Nhân viên tiếp nhận nhập số điện thoại chưa chuẩn hóa (dạng `84901234567` hoặc `090 123 4567`) vào ô tìm kiếm.
+  * **When** Nhấn nút "Tìm kiếm".
+  * **Then** Hệ thống tự động quy đổi về dạng 10 số chuẩn `0901234567` (QT-02) và hiển thị thông tin hồ sơ khách hàng tương ứng.
+* **Kịch bản 2 (Luồng ngoại lệ - Khách hàng mới):**
+  * **Given** Số điện thoại `0909999999` chưa từng tồn tại trên hệ thống Mekong Mobile.
+  * **When** Nhân viên thực hiện tìm kiếm.
+  * **Then** Hệ thống hiển thị thông báo "Không tìm thấy khách hàng" và hiển thị form cho phép khởi tạo hồ sơ khách hàng mới.
+
+#### **US2 (MUST): Ghi nhận Thông tin Thiết bị & Ngày mua**
+* **Kịch bản 1 (Luồng chính - Ghi nhận IMEI và ngày mua hợp lệ):**
+  * **Given** Khách hàng chọn tiếp nhận bảo hành thiết bị có số IMEI `889900112233445`.
+  * **When** Nhân viên nhập IMEI và ngày mua `15/01/2026` từ hóa đơn.
+  * **Then** Hệ thống lưu thông tin thiết bị và liên kết thiết bị với `customer_id` hiện tại.
+* **Kịch bản 2 (Luồng ngoại lệ - Trùng IMEI ở khách hàng khác):**
+  * **Given** Số IMEI `889900112233445` đã được gán cho một khách hàng khác trên hệ thống.
+  * **When** Nhân viên lưu thông tin thiết bị.
+  * **Then** Hệ thống ngăn chặn lưu bản ghi và hiển thị cảnh báo vi phạm quy tắc QT-03: "Số IMEI này đã thuộc về khách hàng khác, vui lòng kiểm tra lại".
+
+#### **US3 (MUST): Tự động Kiểm tra Điều kiện Bảo hành**
+* **Kịch bản 1 (Luồng chính - Còn hạn bảo hành):**
+  * **Given** Ngày tiếp nhận phiếu là `02/10/2026`, ngày mua của thiết bị là `15/01/2026` (thời hạn bảo hành 12 tháng).
+  * **When** Hệ thống đối soát điều kiện bảo hành.
+  * **Then** Hệ thống xác nhận "Còn bảo hành" và tự động gán chi phí `is_warranty = True`.
+* **Kịch bản 2 (Luồng ngoại lệ - Thiếu thông tin ngày mua):**
+  * **Given** Khách hàng không nhớ ngày mua và không giữ hóa đơn.
+  * **When** Nhân viên tiếp nhận chọn tùy chọn "Thiếu ngày mua".
+  * **Then** Hệ thống gán trạng thái phiếu là "Chưa xác minh bảo hành" (`is_warranty = False`) và gửi yêu cầu phê duyệt tới Quản lý trung tâm theo quy tắc QT-05.
+
+#### **US5 (MUST): Tự động Phân loại SLA & Tính Hạn Trả máy (`due_date`)**
+* **Kịch bản 1 (Luồng chính - Mức ưu tiên CAO):**
+  * **Given** Phiếu bảo hành được chọn mức ưu tiên "CAO" (SLA 24h làm việc) và tiếp nhận lúc 09:00 Thứ Sáu.
+  * **When** Hệ thống tính toán hạn cam kết SLA (QT-04).
+  * **Then** Hệ thống tự động gán `due_date` là 09:00 Thứ Bảy cùng tuần.
+* **Kịch bản 2 (Luồng chính - Bỏ qua ngày Chủ Nhật):**
+  * **Given** Phiếu bảo hành được chọn mức ưu tiên "TRUNG_BINH" (SLA 72h làm việc, tương đương 3 ngày) tiếp nhận lúc 09:00 Thứ Sáu.
+  * **When** Hệ thống tính toán `due_date` theo lịch làm việc T2–T7.
+  * **Then** Hệ thống tự động bỏ qua ngày Chủ Nhật và gán `due_date` là 09:00 Thứ Ba tuần kế tiếp.
+
+#### **US6 (MUST): Khởi tạo Phiếu & Lưu vết Trạng thái**
+* **Kịch bản 1 (Luồng chính - Khởi tạo thành công):**
+  * **Given** Thông tin khách hàng, thiết bị, mô tả lỗi và SLA đã được điền đầy đủ.
+  * **When** Nhân viên nhấn nút "Tạo phiếu bảo hành".
+  * **Then** Hệ thống sinh mã phiếu tự động dạng `BH-XXXXXX/2026`, gán trạng thái `status = 'MOI'`, và ghi tự động 1 bản ghi vào bảng `ticket_status_log` theo quy tắc QT-06.
+
+---
+
+## 4. Yêu cầu Chức năng (FR) & Đặc tả Use Case
+
+### 4.1. Bảng Danh mục Yêu cầu Chức năng (Functional Requirements - FR)
+
+| Mã FR | Tên chức năng | User Story liên quan | Use Case liên quan | Mức MoSCoW |
+| :--- | :--- | :--- | :--- | :--- |
+| **FR-01** | Tra cứu & chuẩn hóa thông tin khách hàng | US1 | UC-01 | MUST |
+| **FR-02** | Ghi nhận thông tin thiết bị bảo hành | US2 | UC-02 | MUST |
+| **FR-03** | Tự động kiểm tra điều kiện bảo hành | US3 | UC-03 | MUST |
+| **FR-04** | Phân loại nhóm sự cố & mô tả lỗi | US4 | UC-04 | SHOULD |
+| **FR-05** | Tự động tính hạn cam kết SLA | US5 | UC-04 | MUST |
+| **FR-06** | Khởi tạo phiếu bảo hành & lưu log | US6 | UC-05 | MUST |
+| **FR-07** | Xem & lọc danh sách phiếu tiếp nhận | US7 | UC-06 | SHOULD |
+| **FR-08** | Phê duyệt phiếu thiếu thông tin ngày mua | US8 | UC-07 | COULD |
+
+### 4.2. Sơ đồ Use Case Diagram
+*Sơ đồ Use Case được thiết kế chuẩn gồm ranh giới hệ thống, chú thích (legend) và được lưu trữ dưới dạng file gốc tại `docs/usecase.drawio` trong repository.*
+
+### 4.3. Bản đặc tả chi tiết Use Case cốt lõi (`UC-05`)
+
+* **Mã Use Case:** `UC-05`
+* **Tên Use Case:** Tiếp nhận & khởi tạo phiếu bảo hành
+* **Actor chính:** Nhân viên tiếp nhận
+* **Mô tả ngắn gọn:** Nhân viên tiếp nhận nhập/xác nhận thông tin khách hàng, thiết bị, mô tả lỗi và SLA để hệ thống tự động khởi tạo phiếu bảo hành mới (`ticket`) ở trạng thái `MỚI` và ghi nhật ký trạng thái.
+* **Điều kiện tiên quyết (Pre-conditions):**
+  1. Nhân viên tiếp nhận đã đăng nhập thành công vào hệ thống Smart CRM.
+  2. Hệ thống đã xác định được mã trung tâm tiếp nhận (`center_id`).
+* **Điều kiện sau (Post-conditions):**
+  1. Một bản ghi phiếu bảo hành mới được lưu vào bảng `ticket` với trạng thái `status = 'MOI'`, gán chi phí `is_warranty`, và sinh mã phiếu duy nhất dạng `BH-XXXXXX/2026`.
+  2. Một bản ghi lịch sử được thêm vào bảng `ticket_status_log` lưu vết khởi tạo.
 
 #### Luồng chính (Main Flow):
-1. Nhân viên tiếp nhận chọn chức năng 'Tạo phiếu bảo hành mới' trên giao diện M1.
-2. Nhân viên nhập số điện thoại khách hàng và bấm 'Tra cứu'.
-3. Hệ thống tự động chuẩn hóa SĐT về dạng 10 số (QT-01, QT-02) và hiển thị thông tin khách hàng kèm danh sách thiết bị đã mua. 
-4. Nhân viên chọn thiết bị bảo hành từ danh sách; hệ thống hiển thị ngày mua và đối soát điều kiện bảo hành (QT-05).
-5. Nhân viên chọn nhóm sự cố () và nhập mô tả lỗi chi tiết do khách kể (tối thiểu 10 ký tự). 
-6. Hệ thống đề xuất mức ưu tiên và tự động tính hạn cam kết  theo quy tắc làm việc T2–T7 (QT-04).
-7. Nhân viên rà soát toàn bộ thông tin trên form và nhấn nút 'Lưu phiếu'.
-8. Hệ thống sinh mã phiếu duy nhất dạng , lưu bản ghi vào bảng  với , tự động ghi 1 dòng log vào  (QT-06), và hiển thị thông báo thành công kèm ngày hẹn trả máy.
+1. **Nhân viên** nhập số điện thoại khách hàng. Hệ thống tự động chuẩn hóa về dạng 10 số (QT-01, QT-02) và hiển thị thông tin khách hàng.
+2. **Nhân viên** nhập số IMEI/Serial của thiết bị và ngày mua từ hóa đơn (QT-03).
+3. **Hệ thống** tự động kiểm tra điều kiện bảo hành theo ngày mua (QT-05) và xác nhận thiết bị "Còn bảo hành" (`is_warranty = True`).
+4. **Nhân viên** chọn nhóm sự cố (`issue_category`) và nhập mô tả chi tiết lỗi ban đầu (`issue_desc`).
+5. **Hệ thống** tự động đề xuất mức ưu tiên và tính hạn cam kết trả máy `due_date` theo quy tắc giờ làm việc T2–T7 (QT-04).
+6. **Nhân viên** rà soát toàn bộ thông tin trên màn hình và nhấn nút "Tạo phiếu bảo hành".
+7. **Hệ thống** thực hiện:
+   * Sinh mã phiếu hiển thị dạng `BH-XXXXXX/2026`.
+   * Lưu thông tin vào bảng `ticket` với trạng thái `status = 'MOI'`.
+   * Ghi tự động 1 bản ghi vào bảng `ticket_status_log` (QT-06).
+8. **Hệ thống** hiển thị thông báo "Tạo phiếu thành công" kèm mã phiếu và ngày hẹn trả máy `due_date`.
 
 #### Các luồng ngoại lệ (Alternative / Exception Flows):
-* **3a. SĐT không tồn tại trên hệ thống:** Hệ thống báo 'Không tìm thấy khách hàng' và gợi ý nút 'Tạo khách hàng mới'. Sau khi lưu khách mới (), hệ thống tự chuyển lại bước 4.
-* **4a. Thiết bị chưa từng có trong lịch sử mua:** Hệ thống cho phép nhập thiết bị ngoài: bắt buộc nhập số IMEI/Serial và chọn thương hiệu/model; hệ thống tự tạo bản ghi  và gán với khách này (QT-03).
-* **4b. Không có thông tin ngày mua / mất hóa đơn:** Hệ thống tự động đánh dấu  ('Chưa xác minh bảo hành') và thông báo phiếu sẽ chuyển Quản lý duyệt trước khi làm dịch vụ miễn phí (QT-05).
-* **5a. Mô tả lỗi quá ngắn (< 10 ký tự):** Hệ thống chặn không cho bấm lưu và hiển thị cảnh báo ngay bên dưới ô nhập: 'Mô tả lỗi phải từ 10 ký tự trở lên'.
-* **7a. Thiết bị đang có phiếu bảo hành chưa đóng:** Hệ thống phát hiện thiết bị đang ở trạng thái xử lý khác 'ĐÃ ĐÓNG'/'ĐÃ HỦY', từ chối tạo mới và hiển thị mã phiếu đang mở để Nhân viên tra cứu.
+* **3a. IMEI thiết bị đã tồn tại thuộc về khách hàng khác (Vi phạm QT-03):**
+  * *3a1.* Hệ thống cảnh báo "Số IMEI này đã được gán cho một khách hàng khác trên hệ thống".
+  * *3a2.* Nhân viên kiểm tra lại IMEI trên vỏ máy hoặc hóa đơn.
+  * *3a3.* Nếu nhập sai, nhân viên nhập lại IMEI đúng và quay lại Bước 3 của luồng chính.
+* **3b. Không xác minh được ngày mua / Thiếu hóa đơn (Vi phạm QT-05):**
+  * *3b1.* Hệ thống đánh dấu phiếu là "Chưa xác minh bảo hành" (`is_warranty = False / Pending`).
+  * *3b2.* Hệ thống khởi tạo phiếu ở trạng thái chờ duyệt và gửi thông báo tới Quản lý trung tâm.
+  * *3b3.* Luồng tiếp nhận tạm dừng cho đến khi Quản lý trung tâm thực hiện phê duyệt (`UC-07`).
 
 ---
 
-## MỤC 3 — THIẾT KẾ KIẾN TRÚC
+## 5. Yêu cầu Phi Chức năng (Non-Functional Requirements - NFR)
 
-### 3.1. Sơ đồ Kiến trúc Phân lớp (4-Tier Layered Architecture)
-Hệ thống Smart CRM (Phân hệ L02) áp dụng mô hình Kiến trúc Phân lớp 4 tầng (4-Tier Layered Architecture) với nguyên tắc phụ thuộc một chiều từ trên xuống dưới:
-* **Layer 1: Presentation Layer (React Web Frontend):** Hiển thị M1, M2, M3; gửi REST API requests và nhận kết quả JSON. Không chứa Business Logic.
-* **Layer 2: Business / Service Layer (FastAPI Backend):** Chứa các Service xử lý nghiệp vụ:  (QT-01, QT-02, QT-15 masking),  (QT-05),  (QT-04),  (QT-06 sinh mã phiếu và ghi log).
-* **Layer 3: Data Access / Repository Layer (SQLAlchemy ORM):** Truy xuất dữ liệu thông qua các Repository độc lập (, , , ), tách biệt SQL khỏi Service.
-* **Layer 4: Database Layer (PostgreSQL Database):** Lưu trữ 5 thực thể chính chuẩn 3NF, áp dụng B-Tree Index tối ưu hóa truy vấn.
-
-### 3.2. Ba câu Lập luận Quyết định Kiến trúc (Trade-off Arguments)
-1. **Lập luận 1 (về Hiệu năng - NFR1):**
-   > "Vì NFR1 yêu cầu thời gian phản hồi API tra cứu khách hàng và khởi tạo phiếu < 300ms với 50 kết nối đồng thời và danh sách hiển thị < 2s với 1.000 bản ghi, tôi chọn đánh B-Tree Index ghép  trên bảng  và thực hiện phân trang 20 dòng ngay tại lớp Data Access; đánh đổi là tốn thêm dung lượng lưu trữ index và thời gian ghi (Write latency) khi tạo mới/cập nhật phiếu chậm hơn một chút."
-2. **Lập luận 2 (về Bảo mật - NFR2):**
-   > "Vì NFR2 yêu cầu che (masking) số điện thoại dạng  đối với vai trò Nhân viên tiếp nhận theo QT-15, tôi chọn thực hiện kiểm tra Scope vai trò và Masking trực tiếp tại  tầng Backend trước khi trả về Presentation Layer; đánh đổi là mọi API endpoint khách hàng đều phải truyền JWT Token chứa thông tin vai trò và trải qua bước biến đổi dữ liệu trên CPU Backend."
-3. **Lập luận 3 (về Bảo trì - NFR4):**
-   > "Vì NFR4 yêu cầu việc thay đổi cấu hình thời hạn SLA (QT-04) chỉ được thực hiện trong 1 module duy nhất và 0 file bị ảnh hưởng ở lớp khác, tôi chọn kiến trúc 4 lớp độc lập với phụ thuộc một chiều và đóng gói toàn bộ thuật toán SLA vào  của tầng Business; đánh đổi là phải viết thêm các file trung gian (Controller, Service, Repository) cho mỗi thao tác xử lý dữ liệu."
+| Mã NFR | Tiêu chí chất lượng | Ngưỡng con số đo lường cụ thể |
+| :--- | :--- | :--- |
+| **NFR-01** | **Hiệu năng (Performance)** | Thời gian phản hồi của API tra cứu khách hàng và tạo phiếu `ticket` < **300ms** cho 95% số request khi đạt mức tải 50 kết nối đồng thời. |
+| **NFR-02** | **Chính xác (Accuracy)** | Thuật toán chuẩn hóa số điện thoại tự động đạt tỷ lệ chính xác **100%** đối với các định dạng đầu số Việt Nam (`+84`, `84`, `0x`). |
+| **NFR-03** | **Độ tin cậy (Availability)** | Hệ thống đạt độ sẵn sàng **≥ 99.5%** trong khung giờ hành chính (07:30 – 20:30 từ Thứ 2 đến Thứ 7). |
+| **NFR-04** | **Bảo mật (Security/Privacy)** | Che (masking) số điện thoại hiển thị dạng `090****567` với vai trò Nhân viên tiếp nhận theo đúng quy tắc QT-15. |
 
 ---
 
-## MỤC 4 — MÔ HÌNH DỮ LIỆU (TRACK SE)
+## 6. Bảng Truy vết (Traceability Matrix) & API Contract (Track SE)
 
-### 4.1. Sơ đồ ERD (5 Bảng chuẩn 3NF, Ký pháp Chân chim)
-Mô hình ERD chuẩn 3NF gồm 5 bảng chính, sử dụng ký pháp Chân chim (Crow's Foot). Mọi thực thể đều dùng khóa chính nhân tạo ( / ) để tối ưu hiệu năng nối bảng. File gốc: .
+### 6.1. Bảng Truy vết Ma trận (Traceability Matrix)
 
-### 4.2. Bảng Truy vết Thực thể Dữ liệu về Yêu cầu Chức năng
-| Tên Bảng (Entity) | Phục vụ FR | Lý do tồn tại Nghiệp vụ & Ràng buộc |
-| :--- | :--- | :--- |
-| **** | FR1, FR2, FR3 | Thực thể lưu thông tin khách hàng; cột  là khóa nghiệp vụ UNIQUE (QT-01, QT-02) |
-| **** | FR1, FR3 | Thực thể lưu thông tin thiết bị; cột  là khóa nghiệp vụ UNIQUE định danh duy nhất (QT-03) |
-| **** | FR4 | Danh mục nhóm sự cố chuẩn hóa; thêm nhóm sự cố mới chỉ cần thêm dòng dữ liệu mà không sửa code |
-| **** | FR3, FR4, FR5, FR6, FR7 | Thực thể trung tâm lưu phiếu bảo hành, trạng thái, chi phí  và hạn SLA  |
-| **** | FR7 | Bảng nhật ký lưu vết mọi lần chuyển trạng thái theo đúng vòng đời (QT-06), đáp ứng tính minh bạch |
-
-### 4.3. Thiết kế Index & Lựa chọn Tối ưu CSDL
-| Tên Index | Cột áp dụng Index | Phục vụ Yêu cầu / Nghiệp vụ |
-| :--- | :--- | :--- |
-| **** |  | Phục vụ FR1 / NFR1 — Tối ưu tốc độ tra cứu khách hàng theo SĐT < 300ms |
-| **** |  | Phục vụ FR6 / NFR1 — Tối ưu lọc danh sách phiếu theo trung tâm + trạng thái và sắp SLA |
-| **** |  | Phục vụ US3 (luồng 7a) — Ép ở cấp CSDL: 1 thiết bị chỉ có tối đa 1 phiếu chưa đóng |
-
-### 4.4. Mã nguồn SQL DDL Skeleton ()
-
-
-### 4.5. Thiết kế API Contract (Track SE)
-* **POST ** — Tra cứu & Chuẩn hóa SĐT khách hàng (US1)
-* **POST ** — Khởi tạo phiếu bảo hành mới (US3, US5, US7)
-
-#### Bảng Quy tắc Validation Dữ liệu đầu vào API:
-| Trường dữ liệu | Bắt buộc | Kiểu dữ liệu | Quy tắc Validation | HTTP Status Code |
+| Mã FR | Tên chức năng | Mã US | Mã Use Case | Mức MoSCoW |
 | :--- | :--- | :--- | :--- | :--- |
-|  | Có | String | Phải quy đổi về 10 chữ số bắt đầu bằng 0 (QT-02) | 400 Bad Request |
-|  | Có | String | Độ dài 10-50 ký tự; Không trùng với khách khác (QT-03) | 400 Bad / 409 Conflict |
-|  | Không | String (Date) | Định dạng YYYY-MM-DD; Không lớn hơn ngày hiện tại | 400 Bad Request |
-|  | Có | String | Độ dài từ 10 đến 2000 ký tự | 400 Bad Request |
-|  | Có | String | Chỉ nhận 1 trong 3 giá trị: CAO, TRUNG_BINH, THAP | 400 Bad Request |
+| **FR-01** | Tra cứu & chuẩn hóa thông tin khách hàng | US1 | UC-01 | MUST |
+| **FR-02** | Ghi nhận thông tin thiết bị bảo hành | US2 | UC-02 | MUST |
+| **FR-03** | Tự động kiểm tra điều kiện bảo hành | US3 | UC-03 | MUST |
+| **FR-04** | Phân loại nhóm sự cố & mô tả lỗi | US4 | UC-04 | SHOULD |
+| **FR-05** | Tự động tính hạn cam kết SLA | US5 | UC-04 | MUST |
+| **FR-06** | Khởi tạo phiếu bảo hành & lưu log | US6 | UC-05 | MUST |
+| **FR-07** | Xem & lọc danh sách phiếu tiếp nhận | US7 | UC-06 | SHOULD |
+| **FR-08** | Phê duyệt phiếu thiếu thông tin ngày mua | US8 | UC-07 | COULD |
 
 ---
 
-## MỤC 5 — WIREFRAME 3 MÀN HÌNH
+### 6.2. Thiết kế API Contract (Dành riêng cho Track SE)
 
-### 5.1. Màn hình M1: Tra cứu & Tiếp nhận / Tạo phiếu bảo hành
-* **User Story liên quan:** US1, US2, US3, US4, US5, US7
-* **Mô tả Bố cục Wireframe:**
-  * Header: Tiêu đề 'Tiếp nhận Yêu cầu Bảo hành', Mã trung tâm tiếp nhận ().
-  * Khối Tra cứu Khách hàng (US1): Ô nhập SĐT, Nút 'Tìm kiếm'. Tự động quy đổi SĐT và hiển thị Họ tên/Địa chỉ hoặc Nút 'Tạo khách mới' (US2).
-  * Khối Thông tin Thiết bị (US3): Ô nhập IMEI/Serial, Ngày mua. Badge trạng thái bảo hành 'Còn bảo hành' () hoặc 'Chưa xác minh ngày mua' (QT-05).
-  * Khối Mô tả Lỗi & SLA (US4, US5): Dropdown Nhóm sự cố (), Ô nhập Mô tả lỗi (), Select Mức ưu tiên (CAO, TRUNG_BINH, THAP). Ô hiển thị Hạn cam kết  tự động tính bỏ qua Chủ Nhật (QT-04).
-  * Thanh thao tác: Nút chính 'Tạo phiếu bảo hành' (US7) sinh mã .
+#### **Endpoint 1: `POST /api/v1/tickets`**
+* **Mục đích:** Khởi tạo phiếu bảo hành mới ở trạng thái `MỚI` (Phục vụ `US1`, `US2`, `US3`, `US5`, `US6`).
+* **Request Header:** `Content-Type: application/json`
+* **Request Body JSON Mẫu:**
+  ```json
+  {
+    "customer_phone": "090 123 4567",
+    "serial_no": "IMEI889900112233445",
+    "purchase_date": "2026-01-15",
+    "category_id": 2,
+    "issue_desc": "Màn hình chớp nháy không hiển thị",
+    "priority": "CAO"
+  }
+  ```
+* **Response Mẫu Thành công (`201 Created`):**
+  ```json
+  {
+    "status": "success",
+    "data": {
+      "ticket_id": 1024,
+      "ticket_code": "BH-000123/2026",
+      "customer_phone_normalized": "0901234567",
+      "status": "MOI",
+      "is_warranty": true,
+      "due_date": "2026-10-03T09:00:00Z",
+      "created_at": "2026-10-02T09:00:00Z"
+    }
+  }
+  ```
 
-### 5.2. Màn hình M2: Danh sách Phiếu Tiếp nhận & Lọc SLA
-* **User Story liên quan:** US6
-* **Mô tả Bố cục Wireframe:**
-  * Thanh Tìm kiếm & Bộ lọc: Ô tìm kiếm Mã phiếu/SĐT/IMEI; Dropdown lọc Trạng thái (MỚI, ĐÃ PHÂN CÔNG...); Checkbox 'Chỉ hiện phiếu Quá hạn SLA'.
-  * Bảng Dữ liệu (Data Table): Cột Mã phiếu | Khách hàng | IMEI/Thiết bị | Nhóm sự cố | Trạng thái | Hạn SLA () | Thao tác.
-  * Highlight trực quan: Tô màu Đỏ cảnh báo phiếu đã quá hạn SLA, màu Vàng cho phiếu còn dưới 4 giờ.
-  * Thao tác: Nút 'Xem chi tiết' chuyển sang màn hình M3.
+#### **Endpoint 2: `POST /api/v1/customers/search`**
+* **Mục đích:** Tra cứu và chuẩn hóa số điện thoại khách hàng (Phục vụ `US1`).
+* **Request Body JSON Mẫu:**
+  ```json
+  {
+    "phone": "84901234567"
+  }
+  ```
+* **Response Mẫu Thành công (`200 OK`):**
+  ```json
+  {
+    "status": "success",
+    "data": {
+      "customer_id": 852,
+      "full_name": "Nguyễn Văn A",
+      "phone_normalized": "0901234567",
+      "phone_masked": "090****567"
+    }
+  }
+  ```
 
-### 5.3. Màn hình M3: Chi tiết Phiếu Bảo hành & Nhật ký Lịch sử Trạng thái
-* **User Story liên quan:** US7
-* **Mô tả Bố cục Wireframe:**
-  * Header Màn hình: Mã phiếu , Badge trạng thái hiện tại (MỚI), Badge đếm ngược SLA.
-  * Bố cục 2 Cột Thông tin:
-    * Cột trái: Thông tin khách hàng (SĐT được masking  theo QT-15), Thông tin máy, Ngày mua, Tình trạng bảo hành.
-    * Cột phải: Nhóm sự cố, Mô tả lỗi chi tiết ban đầu.
-  * Khối Timeline Lịch sử Trạng thái (): Bảng dòng thời gian hiển thị Thời gian | Trạng thái cũ -> Trạng thái mới | Người thực hiện | Ghi chú (QT-06).
+#### **Bảng Quy tắc Validation Dữ liệu Đầu vào & HTTP Status Codes:**
 
----
-
-## PHỤ LỤC — BẢNG KHAI BÁO SỬ DỤNG CÔNG CỤ AI
-
-| Công cụ AI | Phần áp dụng | Cách dùng (Tóm tắt prompt gửi AI) | Em đã kiểm chứng / chỉnh sửa gì |
-| :--- | :--- | :--- | :--- |
-| **Trợ lý AI dạng chat** | Mục 1 — User Story & GWT | Gợi ý danh sách 7 User Story chuẩn INVEST và kịch bản GWT cho luồng L02 tiếp nhận bảo hành | Em chọn lọc 7 story, viết lại đúng khuôn 3 phần, tự phân hạng MoSCoW và bổ sung kịch bản ngoại lệ thực tế. |
-| **Trợ lý AI dạng chat** | Mục 3 — Lập luận NFR | Viết 3 câu lập luận kỹ thuật theo khuôn: Vì <NFR>..., tôi chọn..., đánh đổi là... | Gắn trực tiếp mã NFR-01, NFR-02, NFR-04 có con số đo lường thực tế và điều chỉnh đánh đổi theo kiến trúc 4 lớp. |
-| **Trợ lý AI dạng chat** | Mục 4 — SQL DDL & API Contract | Gợi ý cấu trúc DDL PostgreSQL 3NF cho 5 bảng chính và mẫu JSON Response | Tự thêm các ràng buộc CHECK, UNIQUE, tạo INDEX tối ưu tốc độ tra cứu SĐT/SLA và đính kèm comment quy tắc QT-01 đến QT-06. |
-| **Không sử dụng AI** | Mục 2 & Mục 5 — Sơ đồ & Wireframe | Tự vẽ sơ đồ Use Case, sơ đồ Kiến trúc và mô tả Wireframe 3 màn hình | Đảm bảo tính nhất quán giữa actor, use case, các lớp kiến trúc và trường dữ liệu hiển thị trên wireframe. |
+| Trường dữ liệu | Bắt buộc | Kiểu dữ liệu | Quy tắc Validation | HTTP Status Code khi vi phạm |
+| :--- | :--- | :--- | :--- | :--- |
+| `customer_phone` | Có | String | Phải quy đổi được về 10 chữ số bắt đầu bằng `0` (QT-02) | `400 Bad Request` |
+| `serial_no` | Có | String | Bắt buộc có độ dài 10-50 ký tự; Không trùng với khách hàng khác (QT-03) | `400 Bad Request` / `409 Conflict` |
+| `purchase_date` | Không | String (ISO Date) | Định dạng `YYYY-MM-DD`; Không lớn hơn ngày hiện tại | `400 Bad Request` |
+| `category_id` | Có | Integer | Phải tồn tại trong bảng `issue_category` | `404 Not Found` |
+| `priority` | Có | String | Chỉ nhận 1 trong 3 giá trị: `"CAO"`, `"TRUNG_BINH"`, `"THAP"` | `400 Bad Request` |

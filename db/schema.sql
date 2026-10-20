@@ -1,5 +1,5 @@
 -- ============================================================
--- SCRIPT KHỞI TẠO CƠ SỞ DỮ LIỆU (SQL DDL SKELETON - 3NF)
+-- SCRIPT KHỞI TẠO CƠ SỞ DỮ LIỆU (SQL DDL SKELETON - 3NF chuẩn Buổi 5 & 6)
 -- Dự án: Smart CRM - Mekong Mobile (Luồng L02)
 -- Sinh viên: Nguyễn Trương Đức Huy - MSSV: 2374802010186 - Track SE
 -- ============================================================
