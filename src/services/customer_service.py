@@ -1,4 +1,5 @@
 import re
+from typing import Optional, Dict, Any
 
 class CustomerService:
     @staticmethod
@@ -20,3 +21,18 @@ class CustomerService:
         if len(phone_normalized) == 10:
             return phone_normalized[:3] + "****" + phone_normalized[7:]
         return phone_normalized
+
+    @classmethod
+    def get_customer_by_phone(cls, raw_phone: str, repo) -> Optional[Dict[str, Any]]:
+        """Tra cứu khách hàng theo SĐT (QT-01, QT-02, QT-15)"""
+        phone_norm = cls.normalize_phone(raw_phone)
+        customer = repo.find_by_phone_number(phone_norm)
+        if not customer:
+            return None
+        return {
+            "customer_id": customer.get("customer_id"),
+            "full_name": customer.get("full_name"),
+            "phone_normalized": phone_norm,
+            "phone_masked": cls.mask_phone(phone_norm),
+            "email": customer.get("email")
+        }
