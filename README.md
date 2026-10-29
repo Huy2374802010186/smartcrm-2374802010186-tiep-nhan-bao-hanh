@@ -1,7 +1,6 @@
 # Smart CRM — Track SE: Tiếp nhận và Phân loại Yêu cầu Bảo hành (Luồng L02)
 
-Dự án Chuyên đề tốt nghiệp 1 (Khoa CNTT, Trường Đại học Văn Lang).  
-Ví dụ tham chiếu cho mức độ và cấu trúc hệ thống theo tiêu chuẩn Bài tập 2 và Bài tập 3 — Luồng L02: Tiếp nhận thiết bị vào bảo hành (Case study Smart CRM – Mekong Mobile).
+Dự án Chuyên đề tốt nghiệp 1 (Khoa CNTT, Trường Đại học Văn Lang).
 
 **Thông tin sinh viên:**
 - **Họ và tên:** Nguyễn Trương Đức Huy
@@ -14,109 +13,123 @@ Ví dụ tham chiếu cho mức độ và cấu trúc hệ thống theo tiêu ch
 
 ## Hệ thống làm được gì
 
-- **Tra cứu & Chuẩn hóa Khách hàng:** Nhập số điện thoại bất kỳ (ví dụ: `+84 908 123 456`, `84908123456`), hệ thống tự động chuẩn hóa về dạng 10 số `0908123456` (**QT-01**, **QT-02**) và che số điện thoại hiển thị dạng `090****456` (**QT-15**).
+- **Tra cứu & Chuẩn hóa Khách hàng:** Nhập SĐT bất kỳ (`+84 908 123 456`, `84908123456`), hệ thống tự động chuẩn hóa về dạng 10 số `0908123456` (**QT-01**, **QT-02**) và che số điện thoại hiển thị dạng `090****456` (**QT-15**).
 - **Ghi nhận & Kiểm tra Thiết bị:** Nhập số IMEI/Serial duy nhất (**QT-03**) và ngày mua từ hóa đơn; hệ thống tự động kiểm tra điều kiện bảo hành còn hạn hay hết hạn (**QT-05**).
 - **Tính toán SLA Tự động:** Nhập thông tin sự cố; hệ thống tự động đề xuất mức ưu tiên và tính hạn cam kết trả máy `due_date` theo giờ làm việc T2–T7 (24h/72h/120h), **tự động nhảy qua ngày Chủ Nhật** (**QT-04**).
 - **Khởi tạo Phiếu Bảo hành:** Sinh mã phiếu duy nhất dạng `BH-XXXXXX/2026`, gán trạng thái `MỚI` và tự động ghi nhật ký lịch sử chuyển trạng thái vào bảng `ticket_status_log` (**QT-06**).
 - **Quản lý & Đôn đốc SLA:** Tra cứu phiếu theo IMEI/mã phiếu, lọc danh sách phiếu quá hạn hoặc sắp quá hạn SLA (<4h).
+- **3 Màn hình Frontend (Sprint 2):** M1 (Tạo phiếu), M2 (Danh sách & Lọc SLA), M3 (Chi tiết & Log trạng thái).
+- **DataState 3 trạng thái:** Loading (spinner), Empty (khi lọc rỗng), Error (lỗi mạng kèm nút Retry).
 
-Các quy tắc nghiệp vụ cốt lõi đã hiện thực: **QT-01/02** (chuẩn hóa SĐT), **QT-03** (định danh IMEI/Serial duy nhất), **QT-04** (SLA tính theo giờ làm việc T2–T7 bỏ qua Chủ Nhật), **QT-05** (đối soát hạn bảo hành), **QT-06** (vòng đời phiếu & log trạng thái), **QT-15** (masking SĐT `090****456`).
+Các quy tắc nghiệp vụ đã hiện thực: **QT-01/02** (chuẩn hóa SĐT), **QT-03** (định danh IMEI/Serial duy nhất), **QT-04** (SLA tính theo giờ làm việc T2–T7 bỏ qua Chủ Nhật), **QT-05** (đối soát hạn bảo hành), **QT-06** (vòng đời phiếu & log trạng thái), **QT-15** (masking SĐT `090****456`).
 
 ---
 
 ## Yêu cầu môi trường
 
-- **Cách 1 (Khuyên dùng khi chấm bài):** Docker Engine 24 trở lên và Docker Compose v2 (`docker compose version`).
-- **Cách 2 (Chạy trực tiếp / Local Dev):** Python 3.11+ và PostgreSQL 15+ cài trực tiếp trên máy.
+- **Python 3.11+** và pip
+- **Không cần PostgreSQL** để chạy và kiểm thử (dữ liệu in-memory đồng bộ `db/seed.sql`)
+- **Cần PostgreSQL 15+** chỉ khi muốn kết nối CSDL thật
 
 ---
 
-## Chạy hệ thống
-
-### Cách 1: Chạy bằng Docker (Khuyên dùng)
+## Chạy hệ thống (Cách 2 — Local Dev, không cần Docker)
 
 ```bash
+# Bước 1: Clone repository
+git clone <repo-url>
+cd smartcrm-2374802010186-tiep-nhan-bao-hanh
+```
+
+```bash
+# Bước 2: Tạo file môi trường
 cp .env.example .env
-docker compose up -d --build
 ```
 
-Kiểm tra hệ thống đã chạy đúng:
 ```bash
-docker compose ps                      # Cột STATUS của db và api phải là "healthy" hoặc "running"
-curl -s http://localhost:8000/health   # {"status":"ok","db":"ok"}
+# Bước 3: Cài đặt thư viện Python
+pip install -r requirements.txt
 ```
 
-### Cách 2: Chạy trực tiếp trên máy (Không dùng Docker)
+```bash
+# Bước 4: Chạy Unit Tests (không cần DB, không cần Docker)
+python -m unittest tests/test_sprint1.py -v
+```
 
-1. Tạo CSDL PostgreSQL cục bộ (ví dụ: `smartcrm_db`).
-2. Nạp dữ liệu cấu trúc và dữ liệu mẫu:
-   - Chạy script `db/schema.sql` để tạo bảng.
-   - Chạy script `db/seed.sql` để nạp dữ liệu danh mục ban đầu.
-3. Tạo file `.env` từ `.env.example` và cập nhật thông tin kết nối CSDL cục bộ:
-   ```env
-   DB_HOST=localhost
-   DB_PORT=5432
-   DB_USER=postgres
-   DB_PASSWORD=your_password
-   DB_NAME=smartcrm_db
-   ```
-4. Cài đặt thư viện & Chạy Server FastAPI:
-   ```bash
-   pip install -r requirements.txt
-   uvicorn src.main:app --reload
-   ```
+```bash
+# Bước 5: Khởi động Backend API
+uvicorn src.main:app --reload
+```
+
+```bash
+# Bước 6: Mở Frontend trên trình duyệt
+# Truy cập: http://localhost:8000
+```
 
 ---
 
 ## Chạy bộ kiểm thử (Unit Tests)
 
-Bộ kiểm thử có thể chạy trực tiếp **không cần Docker** và **không cần CSDL**:
+Bộ kiểm thử chạy trực tiếp **không cần Docker** và **không cần CSDL**:
 
 ```bash
-python3 -m unittest tests/test_sprint1.py
+python -m unittest tests/test_sprint1.py -v
 ```
 
-Bộ kiểm thử gồm 6 test cases ở ba loại: **luồng đúng** (happy path), **giá trị biên** (edge cases - SLA nhảy qua Chủ Nhật), và **dữ liệu sai/ngoại lệ** (invalid inputs - SĐT sai, mô tả lỗi <10 ký tự).
+Bộ kiểm thử gồm **8 test cases** chia làm 3 nhóm:
+1. **Luồng đúng (Happy path):** Chuẩn hóa SĐT hợp lệ, Masking SĐT, Tạo phiếu thành công.
+2. **Giá trị biên (Edge cases):** SLA nhảy qua Chủ Nhật (QT-04), SLA mức CAO 24h.
+3. **Dữ liệu sai / Ngoại lệ:** SĐT không hợp lệ, Mô tả lỗi <10 ký tự (V8), Trùng phiếu mở (QT-03/QT-09).
 
 ---
 
-## Cấu trúc thư mục (Clean Architecture - 4 Lớp)
+## Cấu trúc thư mục (Clean Architecture — 4 Lớp)
 
 ```text
-src/routes/          Tầng 1 — Controller nhận HTTP, validate schema, dịch response sang HTTP Status Code
-src/services/        Tầng 2 — Business Logic, chứa các quy tắc nghiệp vụ (QT-01 -> QT-15), KHÔNG biết gì về HTTP
-src/repositories/    Tầng 3 — Data Access Layer, tương tác PostgreSQL, KHÔNG chứa quy tắc nghiệp vụ
+src/routes/          Tầng 1 — Controller HTTP, validate schema, dịch HTTP Status Code
+src/services/        Tầng 2 — Business Logic (QT-01 → QT-15), KHÔNG biết gì về HTTP
+src/repositories/    Tầng 3 — Data Access Layer, tương tác CSDL, KHÔNG chứa nghiệp vụ
 src/schemas/         Kiểm tra định dạng & cấu trúc dữ liệu vào (Pydantic models)
-src/core/            Cấu hình kết nối CSDL và các cài đặt chung
-db/                  Chứa schema.sql (DDL 3NF) và seed.sql (Dữ liệu mẫu nạp tự động)
-tests/               Bộ kiểm thử tự động Unit Tests (test_sprint1.py)
-docs/                Toàn bộ tài liệu đặc tả, sơ đồ kiến trúc, ERD, wireframe và nhật ký thiết kế
+src/core/            Cấu hình kết nối CSDL và cài đặt chung
+src/static/          Frontend SPA (3 màn hình M1, M2, M3) — Track SE Module mở rộng
+  ├── index.html     Cấu trúc HTML 3 màn hình + sidebar navigation
+  ├── css/app.css    Design system dark theme (navy/teal)
+  └── js/
+      ├── api/       Tầng API Client (client.js + ticket.api.js)
+      └── app.js     Controller chính M1/M2/M3
+db/                  schema.sql (DDL 3NF) + seed.sql (Dữ liệu mẫu)
+tests/               Bộ kiểm thử Unit Tests — 8/8 PASS (test_sprint1.py)
+docs/                Tài liệu đặc tả, sơ đồ kiến trúc, ERD, wireframe
+docs/screenshots/    Ảnh chụp màn hình minh chứng chạy toàn luồng
 ```
 
-**Phép thử ranh giới tầng** (chạy được ngay trên Linux/macOS, phải trả về rỗng):
-
+**Kiểm tra tính phân tầng** (phải trả về rỗng):
 ```bash
-# Tầng Services KHÔNG được chứa đối tượng HTTP (Request, Response, status_code)
-grep -rn "Request\|Response\|status_code" src/services/*.py
+# Tầng Services KHÔNG được chứa đối tượng HTTP
+grep -rn "Request\|Response\|status_code" src/services/
 
-# Tầng Repositories KHÔNG được chứa quy tắc nghiệp vụ (calculate_due_date, normalize_phone)
-grep -rn "calculate_due_date\|normalize_phone" src/repositories/*.py
+# Tầng Frontend KHÔNG được gọi fetch() trực tiếp (phải qua api/client.js)
+grep -rn "fetch(" src/static/js/app.js src/static/js/api/ticket.api.js
 ```
 
 ---
 
-## Tài liệu đính kèm (`docs/`)
+## API Endpoints (Sprint 2)
 
-| Tệp | Nội dung |
-|---|---|
-| `docs/srs.md` | Tài liệu Đặc tả Yêu cầu Hệ thống (SRS rút gọn 8 mục) |
-| `docs/api-docs.md` | Tài liệu Đặc tả REST API Contracts (Endpoints, Request/Response, Validation Rules) |
-| `docs/thay-doi-thiet-ke.md` | Nhật ký điều chỉnh thiết kế theo phản hồi thiết kế (`TD-01`, `TD-02`, `TD-03`) |
-| `docs/ai-disclosure.md` | Bảng Khai báo Minh bạch Sử dụng Công cụ AI |
-| `docs/diagrams/erd.drawio` | Sơ đồ Cơ sở Dữ liệu ERD 3NF (5 thực thể) |
-| `docs/diagrams/wireframe.drawio` | Sơ đồ Wireframe 3 màn hình nghiệp vụ M1, M2, M3 |
-| `docs/test-plan.md` | Kế hoạch kiểm thử rút gọn 4 mục |
-| `docs/test-report.md` | Báo cáo kết quả chạy test cases |
-| `docs/bug-log.md` | Bảng ghi vết lỗi và lịch sử sửa bug |
-| `docs/deployment-guide.md` | Hướng dẫn triển khai hệ thống |
-| `docs/checklist-bao-mat.md` | Bảng tự đánh giá an toàn bảo mật |
+| Method | Endpoint | Mô tả |
+|--------|----------|-------|
+| `POST` | `/api/v1/customers/search` | Tra cứu KH theo SĐT (QT-01, QT-02, QT-15) |
+| `POST` | `/api/v1/tickets` | Tạo phiếu bảo hành mới (QT-03 → QT-06) |
+| `GET`  | `/api/v1/tickets` | Danh sách phiếu + lọc SLA (US7) |
+| `GET`  | `/api/v1/tickets/{ticket_code}` | Chi tiết phiếu kèm log (M3) |
+| `GET`  | `/api/v1/categories` | Danh sách nhóm sự cố |
+| `GET`  | `/api/health` | Health check |
+
+---
+
+## Commit History (Conventional Commits)
+
+Toàn bộ commits tuân thủ chuẩn [Conventional Commits](https://www.conventionalcommits.org/):
+`feat:`, `fix:`, `docs:`, `test:`, `chore:`, `refactor:`
+
+Tổng số commits ≥ 8 trên nhánh `dev`.
