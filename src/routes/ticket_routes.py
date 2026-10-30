@@ -69,13 +69,16 @@ def list_tickets(
     )
 
 
-@router.get("/{ticket_code}")
+from urllib.parse import unquote
+
+@router.get("/{ticket_code:path}")
 def get_ticket(ticket_code: str):
     """Chi tiết phiếu bảo hành kèm log trạng thái (M3)."""
-    ticket = ticket_repo.find_by_code(ticket_code)
+    code = unquote(ticket_code)
+    ticket = ticket_repo.find_by_code(code)
     if not ticket:
         return JSONResponse(
             status_code=404,
-            content={"status": "error", "message": f"Không tìm thấy phiếu {ticket_code}"}
+            content={"status": "error", "message": f"Không tìm thấy phiếu {code}"}
         )
     return JSONResponse(status_code=200, content={"status": "success", "data": ticket})
