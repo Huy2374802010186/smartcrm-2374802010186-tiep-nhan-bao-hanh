@@ -137,17 +137,27 @@ smartcrm-2374802010186-tiep-nhan-bao-hanh/
 ├── db/                             # Script CSDL PostgreSQL
 │   ├── schema.sql                  # DDL 3NF (customer, device, issue_category, ticket, ticket_status_log)
 │   └── seed.sql                    # Dữ liệu danh mục & dữ liệu mẫu nạp tự động
-├── docs/                           # Tài liệu đính kèm & Sơ đồ thiết kế
+├── docs/                           # Tài liệu đính kèm, Báo cáo & Sơ đồ thiết kế
 │   ├── diagrams/                   # Sơ đồ .drawio (erd.drawio, wireframe.drawio)
 │   ├── screenshots/                # Ảnh chụp minh chứng giao diện M1, M2, M3, E2E và Test
 │   ├── ai-disclosure.md            # Bảng Khai báo Minh bạch AI
 │   ├── api-docs.md                 # Tài liệu Đặc tả REST API Contracts
-│   ├── bao_cao_buoi_10_sprint_2.docx # Báo cáo Word hoàn chỉnh Sprint 2 (kèm hình ảnh & bảng kiểm chứng)
+│   ├── bug-log.md                  # Nhật ký Gỡ lỗi Hệ thống (3 lỗi chuẩn 7 dòng)
+│   ├── demo-guide.md               # Kịch bản Demo 3 Phút & Bộ câu hỏi vấn đáp bảo vệ
+│   ├── bao_cao_buoi_10_sprint_2.docx # Báo cáo Word Sprint 2
+│   ├── bao_cao_buoi_11_tich_hop_va_docker.docx # Báo cáo Word Tuần 11
+│   ├── BT2_2374802010186_NguyenTruongDucHuy.docx # Báo cáo Word Chung kết Bài tập 2
+│   ├── BT2_2374802010186_NguyenTruongDucHuy.pdf  # File PDF chính thức nộp E-learning
 │   ├── postman_collection.json     # Bộ kiểm thử REST API qua Postman
 │   ├── srs.md                      # Tài liệu Đặc tả Yêu cầu Hệ thống SRS
 │   └── thay-doi-thiet-ke.md       # Nhật ký Điều chỉnh Thiết kế (TD-01, TD-02, TD-03)
+├── nginx/                          # Cấu hình Nginx Reverse Proxy
+│   └── nginx.conf
 ├── src/                            # Mã nguồn ứng dụng Python / FastAPI
-│   ├── core/                       # Config CSDL & Biến môi trường
+│   ├── core/                       # Config CSDL, Logger JSON (QT-15) & Exception Handler
+│   │   ├── config.py
+│   │   ├── errors.py               # Xử lý lỗi xuyên lớp & LoiNghiepVu
+│   │   └── logger.py               # JSON Structured Logger & Masking SĐT
 │   ├── repositories/              # Tầng 3 — Data Access Layer (PostgreSQL & in-memory)
 │   ├── routes/                     # Tầng 1 — Controller nhận HTTP & validate schema
 │   ├── schemas/                    # Pydantic validation models
@@ -156,10 +166,13 @@ smartcrm-2374802010186-tiep-nhan-bao-hanh/
 │   └── main.py                     # Entry point khởi chạy FastAPI & mount frontend
 ├── tests/                          # Bộ kiểm thử tự động Unit Tests (8/8 PASS 100%)
 │   └── test_sprint1.py
+├── .dockerignore                   # Danh sách loại trừ khi build Docker image
 ├── .env.example                    # Cấu hình biến môi trường mẫu
 ├── .gitignore                      # Danh sách loại trừ Git
+├── Dockerfile                      # Multi-stage Dockerfile (python:3.11-slim, appuser UID 10001, HEALTHCHECK)
+├── docker-compose.yml              # Điều phối 3 dịch vụ: db (Postgres), api (FastAPI), web (Nginx)
 ├── README.md                       # Tài liệu hướng dẫn & Báo cáo tổng quan
-└── requirements.txt                # Khai báo các thư viện Python
+└── requirements.txt                # Khai báo các thư viện Python (đã khóa phiên bản ==)
 ```
 
 ### Phép thử ranh giới tầng (Layer Boundary Check):
@@ -173,15 +186,18 @@ grep -rn "calculate_due_date\|normalize_phone" src/repositories/*.py
 
 ---
 
-## 8. Trạng thái hiện tại & Bảng tự kiểm (Sprint 2 / Buổi 10 Checklist)
+## 8. Trạng thái hiện tại & Bảng tự kiểm (Tuần 11 & Tuần 12 / BT2 Checklist)
 
 - [x] **Cấu trúc 4 lớp Clean Architecture:** Phân tách rõ ràng giữa Routes, Services, Repositories, Schemas.
 - [x] **CSDL PostgreSQL 3NF:** Script `db/schema.sql` và `db/seed.sql` tạo bảng và nạp dữ liệu mẫu thành công.
 - [x] **Module cốt lõi Sprint 1 & 2:** Hiện thực `CustomerService`, `SLAService`, `TicketService` đúng quy tắc.
-- [x] **Unit Tests:** 8/8 test cases PASS 100% bằng 1 lệnh `python3 -m unittest tests/test_sprint1.py`.
-- [x] **Tích hợp End-to-End:** Toàn bộ luồng L02 chạy thông suốt từ Tra cứu -> Tính SLA/Bảo hành -> Khởi tạo phiếu -> Ghi log.
-- [x] **3 Màn hình Giao diện:** Hoàn thiện M1, M2, M3 kết nối API qua tầng Client duy nhất, xử lý đủ 3 trạng thái (Loading / Empty / Error).
-- [x] **Tài liệu đính kèm:** `docs/srs.md`, `docs/thay-doi-thiet-ke.md`, `docs/ai-disclosure.md`, `docs/api-docs.md`, `docs/bao_cao_buoi_10_sprint_2.docx`.
+- [x] **Đóng gói Docker Multi-stage:** Tách builder/runner, user phi đặc quyền `appuser` (UID 10001), có `HEALTHCHECK`.
+- [x] **Docker Compose 3 dịch vụ:** `db` -> `api` (chờ `service_healthy`) -> `web` (Nginx reverse proxy).
+- [x] **JSON Logging & Error Middleware:** Ghi log JSON có `request_id`, che SĐT khách (`QT-15`), bộ xử lý `LoiNghiepVu`.
+- [x] **Bug Log (`docs/bug-log.md`):** Ghi chép đủ 3 lỗi thực tế theo mẫu 7 dòng bắt buộc (`BUG-001`, `BUG-002`, `BUG-003`).
+- [x] **Unit Tests:** 8/8 test cases PASS 100% bằng 1 lệnh `python -m unittest tests/test_sprint1.py`.
+- [x] **3 Màn hình Giao diện:** Hoàn thiện M1, M2, M3 kết nối API qua tầng Client duy nhất, xử lý đủ 3 trạng thái.
+- [x] **Báo cáo nộp bài BT2:** File PDF chính thức `docs/BT2_2374802010186_NguyenTruongDucHuy.pdf` (đủ 7 mục + phụ lục AI).
 
 ---
 
@@ -189,15 +205,17 @@ grep -rn "calculate_due_date\|normalize_phone" src/repositories/*.py
 
 | Tệp | Nội dung mô tả |
 | :--- | :--- |
-| `docs/bao_cao_buoi_10_sprint_2.docx` | Báo cáo Thực hành Word hoàn chỉnh có chèn đầy đủ hình ảnh & bảng kiểm chứng |
+| `docs/BT2_2374802010186_NguyenTruongDucHuy.pdf` | **File PDF chính thức nộp VLU E-learning cho Bài tập 2** (7 mục + Phụ lục AI) |
+| `docs/BT2_2374802010186_NguyenTruongDucHuy.docx` | Bản gốc Word của Báo cáo Bài tập 2 |
+| `docs/bao_cao_buoi_11_tich_hop_va_docker.docx` | Báo cáo Thực hành Tuần 11 (Tích hợp & Đóng gói Docker) |
+| `docs/demo-guide.md` | Kịch bản Demo nhanh 3 phút & Sổ tay trả lời bộ 3 câu hỏi vấn đáp của Giảng viên |
+| `docs/bug-log.md` | Nhật ký Gỡ lỗi hệ thống ghi nhận 3 lỗi thực tế chuẩn 7 dòng |
 | `docs/screenshots/` | Thư mục lưu ảnh chụp màn hình minh chứng chạy toàn luồng và kết quả test |
 | `docs/postman_collection.json` | Bộ sưu tập Postman Collection kiểm thử đầy đủ các REST API endpoints |
 | `docs/srs.md` | Tài liệu Đặc tả Yêu cầu Hệ thống SRS rút gọn 8 mục |
 | `docs/api-docs.md` | Tài liệu Đặc tả REST API Contracts (Endpoints, Request/Response JSON, Validation) |
 | `docs/thay-doi-thiet-ke.md` | Nhật ký Điều chỉnh Thiết kế (`TD-01` log trạng thái, `TD-02` SLA Chủ Nhật, `TD-03` Index) |
 | `docs/ai-disclosure.md` | Bảng Khai báo Minh bạch Sử dụng Công cụ AI |
-| `docs/diagrams/erd.drawio` | Sơ đồ Mô hình Dữ liệu Quan hệ ERD 3NF (5 thực thể) |
-| `docs/diagrams/wireframe.drawio` | Sơ đồ Wireframe 3 màn hình nghiệp vụ M1, M2, M3 |
 
 ---
 
@@ -206,3 +224,5 @@ grep -rn "calculate_due_date\|normalize_phone" src/repositories/*.py
 | Công cụ AI | Áp dụng ở phần nào | Cách sử dụng (Tóm tắt Prompt) | Em đã kiểm chứng / chỉnh sửa gì |
 | :--- | :--- | :--- | :--- |
 | **Trợ lý AI dạng chat** | Khung mã nguồn & Unit Tests | Gợi ý cấu trúc Clean Architecture 4 lớp Python & test cases SLA | Tự kiểm thử với `unittest`, sửa logic SLA bỏ qua ngày Chủ Nhật và kiểm tra ràng buộc ngoại lệ |
+| **AI Image Generator** | Sơ đồ & Mockup giao diện | Tạo sơ đồ khối kiến trúc và mockup giao diện web chuẩn CRM | Đối soát sơ đồ khớp 100% với cấu trúc thư mục src/ và API endpoints thực tế |
+| **Trợ lý soạn thảo** | Soạn thảo báo cáo Word & PDF | Định dạng bảng biểu, rà soát lỗi chính tả và tổng hợp danh mục QT-xx | Tự kiểm tra đối chiếu dữ liệu sinh viên, học phần và kết quả test chạy thực tế |
