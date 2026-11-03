@@ -83,3 +83,4 @@ def cau_hinh_log():
 
 # Logger mặc định cho hệ thống
 logger = logging.getLogger("smartcrm")
+

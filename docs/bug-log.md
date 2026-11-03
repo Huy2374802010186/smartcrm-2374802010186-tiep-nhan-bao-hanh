@@ -45,3 +45,4 @@
 | **5. Nguyên nhân** | Ứng dụng dùng cấu hình log cơ bản chưa có bộ lọc (filter/formatter) che mờ trường thông tin nhạy cảm. |
 | **6. Cách sửa** | Tạo bộ lọc regex trong `src/core/logger.py` (`mask_phone_str`), tự động che mờ mọi số điện thoại thành `090****456` trước khi xuất log JSON ra `stdout`. |
 | **7. Commit và xác nhận** | Commit: `feat(core): add structured json logger with QT-15 phone masking` · Đọc `docker compose logs` xác nhận số điện thoại luôn được che dạng `090****456`. |
+

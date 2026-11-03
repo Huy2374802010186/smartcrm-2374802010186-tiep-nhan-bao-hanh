@@ -98,3 +98,4 @@ def dang_ky_xu_ly_loi(app: FastAPI):
                 "request_id": req_id
             }
         )
+

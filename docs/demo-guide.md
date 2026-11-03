@@ -74,3 +74,4 @@ Giảng viên sẽ chọn ngẫu nhiên 1 hàm hoặc 1 quyết định kiến t
 - **Nếu thầy hỏi về che số điện thoại khách hàng (QT-15):**
   - Mở tệp: [`src/services/customer_service.py`](file:///d:/Works/ChuyenDeTotNghiep1/Tuan8/smartcrm-2374802010186-tiep-nhan-bao-hanh/src/services/customer_service.py#L25-L30) và [`src/core/logger.py`](file:///d:/Works/ChuyenDeTotNghiep1/Tuan8/smartcrm-2374802010186-tiep-nhan-bao-hanh/src/core/logger.py#L22-L26)
   - Chỉ vào logic regex `r"(0[3|5|7|8|9]\d)(\d{4})(\d{3})" -> r"\1****\3"`.
+
