@@ -103,6 +103,35 @@ class TicketRepository:
         self._tickets.append(ticket)
         return ticket
 
+    def update_status(
+        self,
+        ticket_code: str,
+        new_status: str,
+        note: str = "",
+        changed_by: str = "SYSTEM"
+    ) -> Optional[Dict[str, Any]]:
+        """Cập nhật trạng thái phiếu + ghi log (US chuyển trạng thái, QT-06)."""
+        for t in self._tickets:
+            if t.get("ticket_code") == ticket_code:
+                old = t.get("status")
+                t["status"] = new_status
+                t.setdefault("status_log", []).append({
+                    "from_status": old,
+                    "to_status": new_status,
+                    "note": note or f"Chuyển trạng thái {old} → {new_status}",
+                    "changed_by": changed_by,
+                    "changed_at": datetime.now().isoformat()
+                })
+                return t
+        return None
+
+    def delete(self, ticket_code: str) -> Optional[Dict[str, Any]]:
+        """Xóa phiếu khỏi danh sách (CRUD-D)."""
+        for i, t in enumerate(self._tickets):
+            if t.get("ticket_code") == ticket_code:
+                return self._tickets.pop(i)
+        return None
+
     def list_all(
         self,
         status: Optional[str] = None,

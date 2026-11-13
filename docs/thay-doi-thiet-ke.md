@@ -29,3 +29,24 @@
   1. `due_date` là mốc cam kết cố định tại thời điểm tiếp nhận (không được thay đổi retroactively khi bảng cấu hình SLA đổi). Cột này cũng cần đánh B-Tree Index để sắp xếp danh sách đôn đốc SLA dưới 300ms (NFR-01).
   2. `is_warranty` lưu vết quyết định đối soát tại thời điểm tiếp nhận phục vụ đối soát tài chính bảo hành.
 - **Ảnh hưởng:** Giữ nguyên cấu trúc DDL bảng `ticket`.
+
+---
+
+## 2. Sau phản hồi Bài tập 2 (chấm BT2, TC2: C6 và S1 chưa đạt)
+
+### TD-04: Khóa phiên bản dependencies trong `requirements.txt` (C6)
+- **Phản hồi của GV:** `requirements.txt` dùng `>=` nên môi trường cài đặt không tái lập được, mục kiểm chứng C6 chưa đạt.
+- **Quyết định:** SỬA
+- **Lý do:** Khóa `==` đúng phiên bản đang chạy (FastAPI, Uvicorn, Pydantic, psycopg2-binary, SQLAlchemy, python-dotenv, httpx) để `pip install -r requirements.txt` tái lập đúng môi trường chấm bài.
+- **Ảnh hưởng:** Chỉ đổi `requirements.txt`, không đổi code. Kiểm tra bằng `pip freeze`.
+
+---
+
+### TD-05: Bổ sung đủ CRUD cho 2 thực thể Ticket và Customer (S1)
+- **Phản hồi của GV:** API mới có tạo (POST) và đọc (GET), chưa đủ bốn thao tác CRUD cho hai thực thể, mục kiểm chứng S1 chưa đạt.
+- **Quyết định:** SỬA
+- **Lý do:** Đáp ứng S1 — mỗi thực thể `ticket` và `customer` đều có đủ Create / Read / Update / Delete.
+- **Ảnh hưởng:**
+  - Thực thể Ticket (`src/routes/ticket_routes.py`, `src/repositories/ticket_repository.py`): thêm `PATCH /api/v1/tickets/{ticket_code}` (đổi trạng thái + ghi `status_log`, QT-06) và `DELETE /api/v1/tickets/{ticket_code}`; repository thêm `update_status()` và `delete()`.
+  - Thực thể Customer (`src/routes/customer_routes.py`, `src/repositories/customer_repository.py`): thêm `GET /api/v1/customers`, `POST /api/v1/customers`, `PATCH /api/v1/customers/{phone}`, `DELETE /api/v1/customers/{phone}`; repository thêm `list_all()`, `create()`, `update()`, `delete()`.
+  - SĐT đầu vào các endpoint customer đều qua `CustomerService.normalize_phone()` (QT-01/02), trùng SĐT trả 409.

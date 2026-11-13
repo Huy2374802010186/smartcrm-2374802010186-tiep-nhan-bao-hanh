@@ -1,6 +1,7 @@
 from typing import Optional
 from fastapi import APIRouter, Query
 from fastapi.responses import JSONResponse
+from pydantic import BaseModel
 from src.schemas.ticket_schema import TicketCreateRequest
 from src.services.ticket_service import TicketService
 from src.repositories.ticket_repository import TicketRepository
@@ -82,3 +83,43 @@ def get_ticket(ticket_code: str):
             content={"status": "error", "message": f"Không tìm thấy phiếu {code}"}
         )
     return JSONResponse(status_code=200, content={"status": "success", "data": ticket})
+
+
+class TicketStatusUpdate(BaseModel):
+    status: str
+    note: Optional[str] = ""
+    changed_by: Optional[str] = "SYSTEM"
+
+
+@router.patch("/{ticket_code:path}")
+def update_ticket_status(ticket_code: str, payload: TicketStatusUpdate):
+    """Cập nhật trạng thái phiếu (CRUD-U, US chuyển trạng thái)."""
+    from urllib.parse import unquote
+    code = unquote(ticket_code)
+    allowed = {"MOI", "DANG_XU_LY", "HOAN_TAT", "DA_DONG", "DA_HUY"}
+    if payload.status not in allowed:
+        return JSONResponse(
+            status_code=400,
+            content={"status": "error", "message": f"Trạng thái không hợp lệ: {payload.status}"}
+        )
+    ticket = ticket_repo.update_status(code, payload.status, payload.note or "", payload.changed_by or "SYSTEM")
+    if not ticket:
+        return JSONResponse(
+            status_code=404,
+            content={"status": "error", "message": f"Không tìm thấy phiếu {code}"}
+        )
+    return JSONResponse(status_code=200, content={"status": "success", "data": ticket})
+
+
+@router.delete("/{ticket_code:path}")
+def delete_ticket(ticket_code: str):
+    """Xóa phiếu bảo hành (CRUD-D)."""
+    from urllib.parse import unquote
+    code = unquote(ticket_code)
+    removed = ticket_repo.delete(code)
+    if not removed:
+        return JSONResponse(
+            status_code=404,
+            content={"status": "error", "message": f"Không tìm thấy phiếu {code}"}
+        )
+    return JSONResponse(status_code=200, content={"status": "success", "data": removed})

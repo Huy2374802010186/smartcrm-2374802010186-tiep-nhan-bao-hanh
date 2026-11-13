@@ -23,3 +23,29 @@ class CustomerRepository:
     def find_by_phone_number(self, phone: str) -> Optional[Dict[str, Any]]:
         """Tra cứu khách hàng theo SĐT đã chuẩn hóa 10 số."""
         return self._customers.get(phone)
+
+    def list_all(self):
+        """Lấy toàn bộ khách hàng (CRUD-R)."""
+        return list(self._customers.values())
+
+    def create(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        """Thêm khách hàng mới (CRUD-C)."""
+        phone = data["phone_normalized"]
+        if phone in self._customers:
+            raise KeyError(f"SĐT {phone} đã tồn tại.")
+        data = dict(data)
+        data["customer_id"] = max((c["customer_id"] for c in self._customers.values()), default=100) + 1
+        self._customers[phone] = data
+        return data
+
+    def update(self, phone: str, patch: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        """Cập nhật thông tin khách hàng (CRUD-U)."""
+        customer = self._customers.get(phone)
+        if not customer:
+            return None
+        customer.update(patch)
+        return customer
+
+    def delete(self, phone: str) -> Optional[Dict[str, Any]]:
+        """Xóa khách hàng (CRUD-D)."""
+        return self._customers.pop(phone, None)
