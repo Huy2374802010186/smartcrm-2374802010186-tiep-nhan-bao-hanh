@@ -10,6 +10,8 @@ class SLAService:
     @classmethod
     def calculate_due_date(cls, start_time: datetime, priority: str) -> datetime:
         """Tính thời hạn SLA due_date bỏ qua ngày Chủ Nhật (QT-04)"""
+        # BUG-001: cộng từng giờ và bỏ qua Chủ Nhật (weekday == 6),
+        # thay vì cộng thẳng timedelta làm hạn SLA rơi sai ngày.
         target_hours = cls.SLA_HOURS.get(priority, 72)
         current = start_time
         added_hours = 0
