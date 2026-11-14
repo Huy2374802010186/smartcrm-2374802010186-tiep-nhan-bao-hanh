@@ -75,6 +75,8 @@ from urllib.parse import unquote
 @router.get("/{ticket_code:path}")
 def get_ticket(ticket_code: str):
     """Chi tiết phiếu bảo hành kèm log trạng thái (M3)."""
+    # BUG-002: dùng converter :path để mã phiếu chứa "/" (BH-xxx/2026)
+    # không bị Starlette cắt thành route con rồi trả 404.
     code = unquote(ticket_code)
     ticket = ticket_repo.find_by_code(code)
     if not ticket:
