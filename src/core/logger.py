@@ -22,6 +22,7 @@ REGEX_PHONE = re.compile(r"(0[3|5|7|8|9]\d)(\d{4})(\d{3})")
 
 
 def mask_phone_str(text: str) -> str:
+    # BUG-003
     """Che số điện thoại trong chuỗi text theo quy tắc QT-15: 0908123456 -> 090****456."""
     return REGEX_PHONE.sub(r"\1****\3", text)
 
@@ -83,4 +84,3 @@ def cau_hinh_log():
 
 # Logger mặc định cho hệ thống
 logger = logging.getLogger("smartcrm")
-
