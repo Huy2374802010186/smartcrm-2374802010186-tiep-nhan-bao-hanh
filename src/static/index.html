@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Smart CRM – Tiếp nhận Bảo hành | Mekong Mobile</title>
+  <meta name="description" content="Hệ thống CRM Mekong Mobile - Tiếp nhận và phân loại yêu cầu bảo hành thiết bị (Luồng L02)" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/app.css" />
+</head>
+<body>
+  <!-- ── Sidebar ──────────────────────────────────────────────── -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="logo-mark">
+        <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="32" height="32" rx="8" fill="url(#lg)"/>
+          <path d="M8 16a8 8 0 0 1 16 0" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
+          <circle cx="16" cy="16" r="3" fill="#fff"/>
+          <defs><linearGradient id="lg" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse"><stop stop-color="#2563EB"/><stop offset="1" stop-color="#0891B2"/></linearGradient></defs>
+        </svg>
+        <span>SmartCRM</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a href="#" class="nav-item active" id="nav-m1" onclick="showPage('m1',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+        <span>Tiếp nhận phiếu</span>
+      </a>
+      <a href="#" class="nav-item" id="nav-m2" onclick="showPage('m2',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1" ry="1"/></svg>
+        <span>Danh sách phiếu</span>
+      </a>
+      <a href="#" class="nav-item" id="nav-m3" onclick="showPage('m3',this)" style="display:none">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        <span>Chi tiết phiếu</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-pill">
+        <div class="user-avatar">NH</div>
+        <div>
+          <div class="user-name">Đức Huy</div>
+          <div class="user-role">NV Tiếp nhận</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── Main Content ─────────────────────────────────────────── -->
+  <main class="main-content">
+
+    <!-- ════════════════════════════════════════════════════════
+         M1 — TIẾP NHẬN & TẠO PHIẾU BẢO HÀNH
+         US1, US2, US3, US4, US5, US6
+    ═══════════════════════════════════════════════════════════ -->
+    <section class="page active" id="page-m1">
+      <div class="page-header">
+        <h1>Tiếp nhận & Tạo phiếu Bảo hành</h1>
+        <span class="badge-track">L02 | Track SE</span>
+      </div>
+
+      <form id="form-ticket" autocomplete="off">
+
+        <!-- ── Bước 1: Tra cứu Khách hàng (US1) ── -->
+        <div class="card" id="card-customer">
+          <div class="card-title">
+            <span class="step-num">1</span>
+            Tra cứu Khách hàng (QT-01, QT-02)
+          </div>
+          <div class="row-inline">
+            <div class="field flex-grow">
+              <label for="inp-phone">Số điện thoại (*)</label>
+              <input type="text" id="inp-phone" placeholder="Nhập SĐT (84xxx / 0xxx / +84 xxx)" />
+            </div>
+            <button type="button" class="btn-primary" id="btn-search-customer" onclick="handleSearchCustomer()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+              Tìm kiếm
+            </button>
+          </div>
+          <!-- DataState: loading / result / empty / error -->
+          <div id="ds-customer" class="data-state hidden"></div>
+          <div id="customer-info" class="info-card hidden">
+            <div class="info-grid">
+              <div><span class="info-label">Họ tên</span><span id="cust-name" class="info-value"></span></div>
+              <div><span class="info-label">SĐT chuẩn hóa</span><span id="cust-phone" class="info-value"></span></div>
+              <div><span class="info-label">SĐT (ẩn)</span><span id="cust-phone-masked" class="info-value code"></span></div>
+              <div><span class="info-label">Email</span><span id="cust-email" class="info-value"></span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Bước 2: Thiết bị & Bảo hành (US2, US3) ── -->
+        <div class="card" id="card-device">
+          <div class="card-title">
+            <span class="step-num">2</span>
+            Thông tin Thiết bị & Điều kiện Bảo hành (QT-03, QT-05)
+          </div>
+          <div class="field-grid">
+            <div class="field">
+              <label for="inp-serial">Số Serial / IMEI (*)</label>
+              <input type="text" id="inp-serial" placeholder="Vd: SN-A52-778901" />
+            </div>
+            <div class="field">
+              <label for="inp-purchase">Ngày mua (từ hóa đơn)</label>
+              <input type="date" id="inp-purchase" />
+            </div>
+          </div>
+          <div id="warranty-status" class="warranty-badge hidden"></div>
+        </div>
+
+        <!-- ── Bước 3: Phân loại sự cố & SLA (US4, US5) ── -->
+        <div class="card" id="card-issue">
+          <div class="card-title">
+            <span class="step-num">3</span>
+            Phân loại Sự cố & Tính SLA Tự động (QT-04)
+          </div>
+          <div class="field-grid">
+            <div class="field">
+              <label for="inp-category">Nhóm sự cố (*)</label>
+              <select id="inp-category" onchange="onCategoryChange()">
+                <option value="">-- Đang tải danh mục... --</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Mức ưu tiên (*)</label>
+              <div class="radio-group" id="priority-group">
+                <label class="radio-item">
+                  <input type="radio" name="priority" value="CAO" onchange="updateSLA()" />
+                  <span class="radio-label priority-cao">CAO <small>(24h)</small></span>
+                </label>
+                <label class="radio-item">
+                  <input type="radio" name="priority" value="TRUNG_BINH" checked onchange="updateSLA()" />
+                  <span class="radio-label priority-tb">TRUNG BÌNH <small>(72h)</small></span>
+                </label>
+                <label class="radio-item">
+                  <input type="radio" name="priority" value="THAP" onchange="updateSLA()" />
+                  <span class="radio-label priority-thap">THẤP <small>(120h)</small></span>
+                </label>
+              </div>
+            </div>
+          </div>
+          <div class="field">
+            <label for="inp-desc">Mô tả lỗi chi tiết (*) <small>— ít nhất 10 ký tự</small></label>
+            <textarea id="inp-desc" rows="3" placeholder="Mô tả triệu chứng lỗi cụ thể..."></textarea>
+            <div id="desc-counter" class="char-counter">0 / tối thiểu 10 ký tự</div>
+          </div>
+          <div id="sla-display" class="sla-display hidden">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <span id="sla-text">Hạn cam kết trả máy: —</span>
+          </div>
+        </div>
+
+        <!-- ── Bước 4: Tạo Phiếu (US6) ── -->
+        <div class="card card-action">
+          <button type="button" class="btn-create" id="btn-create" onclick="handleCreateTicket()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+            Tạo phiếu bảo hành
+          </button>
+          <button type="button" class="btn-ghost" onclick="resetForm()">Hủy bỏ / Làm mới</button>
+        </div>
+      </form>
+    </section><!-- /M1 -->
+
+
+    <!-- ════════════════════════════════════════════════════════
+         M2 — DANH SÁCH PHIẾU & LỌC SLA
+         US7
+    ═══════════════════════════════════════════════════════════ -->
+    <section class="page" id="page-m2">
+      <div class="page-header">
+        <h1>Danh sách Phiếu Bảo hành</h1>
+        <button type="button" class="btn-primary" onclick="showPage('m1',document.getElementById('nav-m1'))">
+          + Tạo phiếu mới
+        </button>
+      </div>
+
+      <!-- Bộ lọc -->
+      <div class="card filter-bar">
+        <div class="field flex-grow">
+          <input type="text" id="f-keyword" placeholder="🔍  Tìm mã phiếu / SĐT / IMEI..." oninput="handleTicketFilter()" />
+        </div>
+        <div class="field">
+          <select id="f-status" onchange="handleTicketFilter()">
+            <option value="">Tất cả trạng thái</option>
+            <option value="MOI">Mới</option>
+            <option value="DANG_XU_LY">Đang xử lý</option>
+            <option value="HOAN_TAT">Hoàn tất</option>
+          </select>
+        </div>
+        <label class="checkbox-toggle">
+          <input type="checkbox" id="f-overdue" onchange="handleTicketFilter()" />
+          <span>Chỉ quá hạn / sắp quá hạn SLA</span>
+        </label>
+        <button type="button" class="btn-primary" onclick="handleTicketFilter()">Lọc</button>
+      </div>
+
+      <!-- Bảng phiếu -->
+      <div class="card table-card">
+        <div id="ds-tickets" class="data-state hidden"></div>
+        <table id="ticket-table" class="data-table hidden">
+          <thead>
+            <tr>
+              <th>Mã Phiếu</th>
+              <th>Khách Hàng</th>
+              <th>SĐT (ẩn)</th>
+              <th>Nhóm Sự Cố</th>
+              <th>Ưu Tiên</th>
+              <th>Trạng Thái</th>
+              <th>Hạn SLA</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="ticket-tbody"></tbody>
+        </table>
+      </div>
+    </section><!-- /M2 -->
+
+
+    <!-- ════════════════════════════════════════════════════════
+         M3 — CHI TIẾT PHIẾU & NHẬT KÝ TRẠNG THÁI
+         US6, QT-06, QT-15
+    ═══════════════════════════════════════════════════════════ -->
+    <section class="page" id="page-m3">
+      <div class="page-header">
+        <button type="button" class="btn-ghost" onclick="showPage('m2',document.getElementById('nav-m2'))">
+          ← Quay lại danh sách
+        </button>
+        <h1 id="m3-title">Chi tiết Phiếu</h1>
+      </div>
+
+      <div id="ds-detail" class="data-state hidden"></div>
+
+      <div id="m3-content" class="m3-layout hidden">
+        <!-- Cột trái: thông tin phiếu -->
+        <div class="detail-col">
+          <div class="card">
+            <div class="card-title">Thông tin Phiếu</div>
+            <div class="ticket-hero">
+              <span id="d-code" class="ticket-code"></span>
+              <span id="d-status-badge" class="status-badge"></span>
+            </div>
+            <div class="info-grid">
+              <div><span class="info-label">Khách hàng</span><span id="d-cust-name" class="info-value"></span></div>
+              <div><span class="info-label">SĐT (ẩn – QT-15)</span><span id="d-cust-phone" class="info-value code"></span></div>
+              <div><span class="info-label">Serial / IMEI</span><span id="d-serial" class="info-value code"></span></div>
+              <div><span class="info-label">Nhóm sự cố</span><span id="d-category" class="info-value"></span></div>
+              <div><span class="info-label">Mức ưu tiên</span><span id="d-priority" class="info-value"></span></div>
+              <div><span class="info-label">Bảo hành</span><span id="d-warranty" class="info-value"></span></div>
+              <div><span class="info-label">Hạn SLA (QT-04)</span><span id="d-due" class="info-value"></span></div>
+              <div><span class="info-label">Tiếp nhận lúc</span><span id="d-created" class="info-value"></span></div>
+            </div>
+            <div class="field mt-16">
+              <span class="info-label">Mô tả lỗi</span>
+              <p id="d-desc" class="desc-text"></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cột phải: log trạng thái -->
+        <div class="detail-col">
+          <div class="card">
+            <div class="card-title">Lịch sử Chuyển Trạng thái (QT-06)</div>
+            <ol id="status-timeline" class="timeline"></ol>
+          </div>
+        </div>
+      </div>
+    </section><!-- /M3 -->
+
+  </main>
+
+  <!-- ── Modal Thành công ─────────────────────────────────────── -->
+  <div id="modal-success" class="modal-overlay hidden" onclick="closeModal()">
+    <div class="modal-box" onclick="event.stopPropagation()">
+      <div class="modal-icon">✅</div>
+      <h2>Tạo phiếu thành công!</h2>
+      <div id="modal-ticket-code" class="modal-code"></div>
+      <div id="modal-sla" class="modal-meta"></div>
+      <div id="modal-warranty" class="modal-meta"></div>
+      <div class="modal-actions">
+        <button class="btn-primary" onclick="closeModal(); showPage('m2', document.getElementById('nav-m2'))">Xem danh sách phiếu</button>
+        <button class="btn-ghost" onclick="closeModal(); resetForm()">Tạo phiếu khác</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/js/app.js"></script>
+</body>
+</html>

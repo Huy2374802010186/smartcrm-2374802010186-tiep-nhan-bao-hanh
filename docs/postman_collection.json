@@ -1,0 +1,198 @@
+{
+  "info": {
+    "_postman_id": "c1f7b8e2-8822-4a0b-9366-e8d123480201",
+    "name": "Smart CRM - Subsystem L02 (Warranty Intake)",
+    "description": "Postman Collection kiểm thử 2 API Endpoints chính của Luồng L02 - Tiếp nhận và Phân loại Yêu cầu Bảo hành.\nSinh viên: Nguyễn Trương Đức Huy - MSSV: 2374802010186 - Track SE",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Khách hàng (Customer)",
+      "item": [
+        {
+          "name": "1.1 Tra cứu khách hàng - Thành công (200 OK)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"84908123456\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/customers/search",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "customers", "search"]
+            },
+            "description": "Tra cứu khách hàng theo SĐT. Tự động chuẩn hóa '84908123456' về '0908123456' và mask dạng '090****456'."
+          },
+          "response": []
+        },
+        {
+          "name": "1.2 Tra cứu khách hàng - Không tìm thấy (404 Not Found)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"0999999999\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/customers/search",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "customers", "search"]
+            },
+            "description": "Số điện thoại hợp lệ nhưng chưa tồn tại trong hệ thống."
+          },
+          "response": []
+        },
+        {
+          "name": "1.3 Tra cứu khách hàng - SĐT sai định dạng (400 Bad Request)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"12345\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/customers/search",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "customers", "search"]
+            },
+            "description": "Số điện thoại không thể chuẩn hóa về 10 chữ số bắt đầu bằng 0."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "2. Phiếu bảo hành (Warranty Ticket)",
+      "item": [
+        {
+          "name": "2.1 Khởi tạo phiếu bảo hành - Thành công (201 Created)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customer_phone\": \"090 812 3456\",\n  \"serial_no\": \"SN-A52-778901\",\n  \"purchase_date\": \"2026-01-15\",\n  \"category_id\": 1,\n  \"issue_desc\": \"Màn hình bị sọc ngang và nhấp nháy liên tục\",\n  \"priority\": \"CAO\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/tickets",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "tickets"]
+            },
+            "description": "Tiếp nhận thiết bị, kiểm tra bảo hành, tính hạn SLA (bỏ qua Chủ Nhật) và sinh mã phiếu BH-XXXXXX/2026."
+          },
+          "response": []
+        },
+        {
+          "name": "2.2 Khởi tạo phiếu bảo hành - Lỗi trùng serial chưa đóng (409 Conflict)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customer_phone\": \"090 812 3456\",\n  \"serial_no\": \"SN-A52-778901\",\n  \"purchase_date\": \"2026-01-15\",\n  \"category_id\": 1,\n  \"issue_desc\": \"Màn hình bị sọc ngang và nhấp nháy liên tục\",\n  \"priority\": \"CAO\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/tickets",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "tickets"]
+            },
+            "description": "Quy tắc QT-03: Một thiết bị có serial đang có phiếu bảo hành chưa hoàn tất thì không được tạo phiếu mới."
+          },
+          "response": []
+        },
+        {
+          "name": "2.3 Khởi tạo phiếu bảo hành - Mô tả lỗi quá ngắn (400 Bad Request)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customer_phone\": \"090 812 3456\",\n  \"serial_no\": \"SN-S21-441207\",\n  \"purchase_date\": \"2026-01-15\",\n  \"category_id\": 1,\n  \"issue_desc\": \"Hỏng màn\",\n  \"priority\": \"CAO\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/tickets",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "tickets"]
+            },
+            "description": "Quy tắc V8: Mô tả sự cố phải có ít nhất 10 ký tự."
+          },
+          "response": []
+        },
+        {
+          "name": "2.4 Lấy danh sách phiếu bảo hành (200 OK)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/tickets",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "tickets"]
+            },
+            "description": "Truy xuất danh sách phiếu bảo hành đã tạo trong hệ thống."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "3. Hệ thống (System Health)",
+      "item": [
+        {
+          "name": "3.1 Health Check (200 OK)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": ["{{base_url}}"],
+              "path": ["health"]
+            },
+            "description": "Kiểm tra trạng thái hoạt động của Service API."
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://127.0.0.1:8000",
+      "type": "string"
+    }
+  ]
+}
