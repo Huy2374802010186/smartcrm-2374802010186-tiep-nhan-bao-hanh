@@ -16,7 +16,7 @@
 | **4. Cách tái lập** | `python -c "from src.services.sla_service import SLAService; from datetime import datetime; print(SLAService.calculate_due_date(datetime(2026, 10, 16, 9, 0), 'TRUNG_BINH'))"` |
 | **5. Nguyên nhân** | `SLAService.calculate_due_date()` cộng trực tiếp `timedelta(hours=target_hours)` theo giờ tự nhiên thay vì cộng từng ngày và bỏ qua ngày nghỉ Chủ Nhật theo quy tắc **QT-04**. |
 | **6. Cách sửa** | Viết lại vòng lặp cộng ngày làm việc: nếu rơi vào Chủ Nhật (`current.weekday() == 6`), tự động tịnh tiến thêm 24 giờ để nhảy sang Thứ Hai. |
-| **7. Commit và xác nhận** | Commit: `2f3be03` · Test `test_sla_calculation_skip_sunday` chuyển từ FAIL sang **PASS 100%**. |
+| **7. Commit và xác nhận** | [Commit sửa lỗi `2da3391`](https://github.com/Huy2374802010186/smartcrm-2374802010186-tiep-nhan-bao-hanh/commit/2da3391f2df7b1ac4fcf70a3c40e7da07d9f020b) · Test `test_sla_calculation_skip_sunday` xác nhận bỏ qua Chủ Nhật. |
 
 ---
 
@@ -30,7 +30,7 @@
 | **4. Cách tái lập** | `curl -s -X GET http://localhost:8000/api/v1/tickets/BH-000004/2026` $\rightarrow$ Trả về `404 Not Found`. |
 | **5. Nguyên nhân** | Route backend khai báo `@router.get("/{ticket_code}")`. Trong FastAPI/Starlette, `{ticket_code}` chỉ khớp một phân đoạn URL (không chứa dấu `/`). Khi đường dẫn là `.../tickets/BH-000004/2026`, Starlette coi `/2026` là đường dẫn con và trả về 404. |
 | **6. Cách sửa** | Đổi khai báo route thành `@router.get("/{ticket_code:path}")` để nhận toàn bộ chuỗi chứa dấu gạch chéo, kết hợp hàm `unquote(ticket_code)`. |
-| **7. Commit và xác nhận** | Commit: `117780f` · Giao diện M3 hiển thị đầy đủ thông tin phiếu và Timeline lịch sử trạng thái ngay lập tức. |
+| **7. Commit và xác nhận** | [Commit sửa lỗi `423be6e`](https://github.com/Huy2374802010186/smartcrm-2374802010186-tiep-nhan-bao-hanh/commit/423be6e1f7ea84b7ce7f3d8cfefd9395ad555813) · Route nhận mã phiếu có dấu `/` và trả chi tiết phiếu. |
 
 ---
 
@@ -44,5 +44,4 @@
 | **4. Cách tái lập** | Gửi request tìm kiếm khách hàng bằng SĐT thô và đọc log terminal: SĐT hiển thị nguyên vẹn 10 chữ số. |
 | **5. Nguyên nhân** | Ứng dụng dùng cấu hình log cơ bản chưa có bộ lọc (filter/formatter) che mờ trường thông tin nhạy cảm. |
 | **6. Cách sửa** | Tạo bộ lọc regex trong `src/core/logger.py` (`mask_phone_str`), tự động che mờ mọi số điện thoại thành `090****456` trước khi xuất log JSON ra `stdout`. |
-| **7. Commit và xác nhận** | Commit: `feat(core): add structured json logger with QT-15 phone masking` · Đọc `docker compose logs` xác nhận số điện thoại luôn được che dạng `090****456`. |
-
+| **7. Commit và xác nhận** | [Commit sửa lỗi `3ce3817`](https://github.com/Huy2374802010186/smartcrm-2374802010186-tiep-nhan-bao-hanh/commit/3ce381780e3dcb7f4eafb2bccbed4f1b9d7aeb1d) · Bộ ghi log JSON che số điện thoại theo QT-15. |

@@ -74,6 +74,21 @@ cp .env.example .env
 docker compose up -d --build
 ```
 
+### Clean-clone test cho release `v1.0`
+
+Sau khi tag `v1.0` được đẩy lên GitHub, kiểm tra trên thư mục mới hoàn toàn:
+
+```bash
+git clone --branch v1.0 https://github.com/Huy2374802010186/smartcrm-2374802010186-tiep-nhan-bao-hanh.git clean-test
+cd clean-test
+cp .env.example .env
+docker compose up -d --build
+docker compose ps
+curl -s http://localhost:8000/health
+```
+
+Sau khi clone và vào thư mục, chỉ cần hai lệnh triển khai trên (sao chép `.env` và `docker compose up`). Các dịch vụ `db` và `api` phải ở trạng thái `healthy`; health endpoint trả `{"status":"ok","db":"ok"}`. Cần Docker Engine và Docker Compose v2.
+
 ###  Cách 2: Chạy trực tiếp trên máy cá nhân (Local Python + PostgreSQL)
 
 ```bash
@@ -120,13 +135,14 @@ curl -s -X POST http://localhost:8000/api/v1/tickets   -H "Content-Type: applica
 ## 6. Chạy bộ kiểm thử (Unit Tests)
 
 ```bash
-python3 -m unittest tests/test_sprint1.py
+python -m unittest discover -s tests
 ```
 
-Bộ kiểm thử gồm **8/8 test cases** thuộc đủ 3 loại bắt buộc (100% PASS):
-- **Luồng đúng (Happy path):** Chuẩn hóa SĐT (`QT-01`, `QT-02`), Masking SĐT (`QT-15`), Sinh mã phiếu `BH-XXXXXX/2026`, đối soát hạn bảo hành (`QT-05`), tính đúng SLA 24h mức CAO.
-- **Giá trị biên (Edge cases):** Thuật toán SLA tự động **nhảy qua ngày Chủ Nhật** (`QT-04`).
-- **Dữ liệu sai / Ngoại lệ (Invalid inputs):** Từ chối SĐT không đúng định dạng, từ chối mô tả lỗi `<10` ký tự, từ chối trùng phiếu mở đang xử lý trên cùng thiết bị (`QT-03`, `QT-09`).
+Bộ kiểm thử gồm **12 test cases** thuộc 5 loại kiểm thử; báo cáo có ma trận kết quả tại [`docs/test-report.md`](docs/test-report.md). Có thể chạy lại riêng một test bằng:
+
+```bash
+python -m unittest tests.test_sprint1.TestSprint1CoreModules.test_phone_normalization_valid
+```
 
 ---
 
@@ -210,6 +226,8 @@ grep -rn "calculate_due_date\|normalize_phone" src/repositories/*.py
 | `docs/bao_cao_buoi_11_tich_hop_va_docker.docx` | Báo cáo Thực hành Tuần 11 (Tích hợp & Đóng gói Docker) |
 | `docs/demo-guide.md` | Kịch bản Demo nhanh 3 phút & Sổ tay trả lời bộ 3 câu hỏi vấn đáp của Giảng viên |
 | `docs/bug-log.md` | Nhật ký Gỡ lỗi hệ thống ghi nhận 3 lỗi thực tế chuẩn 7 dòng |
+| `docs/checklist-bao-mat.md` | Checklist tự đánh giá bảo mật 7 hạng mục và giới hạn đã biết |
+| `docs/test-report.md` | Báo cáo 12 test cases, 8 cột, kết quả và ảnh minh chứng |
 | `docs/screenshots/` | Thư mục lưu ảnh chụp màn hình minh chứng chạy toàn luồng và kết quả test |
 | `docs/postman_collection.json` | Bộ sưu tập Postman Collection kiểm thử đầy đủ các REST API endpoints |
 | `docs/srs.md` | Tài liệu Đặc tả Yêu cầu Hệ thống SRS rút gọn 8 mục |

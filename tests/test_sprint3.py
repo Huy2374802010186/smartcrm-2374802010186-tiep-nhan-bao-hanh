@@ -36,8 +36,12 @@ class TestSprint3Buoi1314(unittest.TestCase):
         self.assertEqual(seed.count("ON CONFLICT"), len(inserts))
 
     def test_TC12_system_api_create_ticket(self):
-        """System API: POST /api/v1/tickets → 201, mã BH-, status MOI, SĐT đã mask."""
+        """System API: health contract và POST /api/v1/tickets."""
         client = TestClient(app)
+        health = client.get("/health")
+        self.assertEqual(health.status_code, 200)
+        self.assertEqual(health.json(), {"status": "ok", "db": "ok"})
+
         resp = client.post("/api/v1/tickets", json={
             "customer_phone": "+84 908 123 456",
             "serial_no": "SN-TC12-999001",

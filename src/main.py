@@ -36,7 +36,7 @@ app.add_middleware(
 @app.get("/api/health", tags=["Health"])
 def health():
     """Kiểm tra tình trạng sẵn sàng của hệ thống (Healthy check)."""
-    return {"status": "ok", "db": "ok", "version": settings.VERSION}
+    return {"status": "ok", "db": "ok"}
 
 # ─── API Routers ─────────────────────────────────────────────────────────────
 app.include_router(customer_router, prefix="/api/v1")
