@@ -16,5 +16,5 @@
 ## Giới hạn đã biết
 
 - Mật khẩu mặc định trong `.env.example` chỉ là giá trị mẫu cho môi trường học tập, không được dùng trên hệ thống thật.
-- Docker chưa được xác minh chạy clean-clone trong môi trường hiện tại; cần chạy lại hướng dẫn triển khai trên máy có Docker Engine và Compose v2.
+- Đã clone tag `v1.0` và kiểm thử Docker Compose sau khi thay Dockerfile trong clone bằng bản sửa local: `db` và `api` healthy, `/health` trả `{"status":"ok","db":"ok"}`. Tag `v1.0` trên origin vẫn trỏ tới commit chưa có bản sửa này; cần cập nhật release và chạy lại clean-clone từ tag sau khi phát hành.
 - Health endpoint trả `db: ok` theo contract kiểm tra của bài tập; do API hiện dùng dữ liệu in-memory, trường này **không** xác nhận kết nối PostgreSQL thật.

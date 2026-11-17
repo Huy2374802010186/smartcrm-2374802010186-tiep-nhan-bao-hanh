@@ -24,7 +24,7 @@
 | TC-06 | `test_TC10_warranty_boundary_12_months` | Biên | QT-05 | 360 ngày / 400 ngày | True / False | True / False | PASS |
 | TC-07 | `test_phone_normalization_invalid` | Dữ liệu sai | QT-01 | `"12345"` | `ValueError` | `ValueError` | PASS |
 | TC-08 | `test_ticket_creation_short_desc` | Dữ liệu sai | V8 | `"Hỏng"` | `ValueError` | `ValueError` | PASS |
-| TC-09 | `test_TC12` (assert mask trên API) | Bảo mật/CLDL | QT-15 | `POST` SĐT `+84…` | `090****456` | `090****456` | PASS |
+| TC-09 | `test_ticket_duplicate_open_ticket` | Tích hợp/toàn vẹn dữ liệu | QT-03 | Tạo phiếu lần hai với cùng serial đang có phiếu mở | Từ chối bằng `KeyError` | `KeyError` | PASS |
 | TC-10 | `test_TC09_verify_warranty_valid` | Luồng đúng | QT-05 | mua cách đây 90 ngày | True | True | PASS |
 | TC-11 | `test_TC11_seed_rerunnable` | Tái lập | Buổi 11 | chạy lại `seed.sql` | 3 INSERT đều có `ON CONFLICT` | 3/3 có | PASS |
 | TC-12 | `test_TC12_system_api_create_ticket` | System API | QT-06 | `GET /health`; `POST /api/v1/tickets` | Health `{"status":"ok","db":"ok"}`; POST 201, mã `BH-…`, `MOI` | Đúng health contract; POST 201, mã `BH-…`, `MOI` | PASS |
