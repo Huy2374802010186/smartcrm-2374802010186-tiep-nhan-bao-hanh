@@ -221,7 +221,7 @@ grep -rn "calculate_due_date\|normalize_phone" src/repositories/*.py
 
 | Tệp | Nội dung mô tả |
 | :--- | :--- |
-| `docs/BT3_2374802010186_NguyenTruongDucHuy.pdf` | Báo cáo tổng hợp Bài tập 3: 7 tài liệu chính, AI disclosure và ảnh minh chứng hiện có |
+| `docs/BT3_2374802010186_NguyenTruongDucHuy_fontfix.pdf` | Bản PDF BT3 đã sửa lỗi font tiếng Việt: 7 tài liệu chính, AI disclosure và ảnh minh chứng |
 | `docs/BT2_2374802010186_NguyenTruongDucHuy.pdf` | **File PDF chính thức nộp VLU E-learning cho Bài tập 2** (7 mục + Phụ lục AI) |
 | `docs/BT2_2374802010186_NguyenTruongDucHuy.docx` | Bản gốc Word của Báo cáo Bài tập 2 |
 | `docs/bao_cao_buoi_11_tich_hop_va_docker.docx` | Báo cáo Thực hành Tuần 11 (Tích hợp & Đóng gói Docker) |
